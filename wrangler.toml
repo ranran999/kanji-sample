@@ -1,0 +1,9 @@
+name = "kanji-master-grade2"
+compatibility_date = "2024-11-01"
+
+# This is a plain static HTML/CSS/JS app (no build step). Point Cloudflare
+# Pages at the repository root, either via:
+#   npx wrangler pages deploy .
+# or by connecting the repo in the dashboard with an empty "Build command"
+# and "Build output directory" set to "/".
+pages_build_output_dir = "."

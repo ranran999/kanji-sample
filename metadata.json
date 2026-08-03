@@ -1,6 +1,0 @@
-{
-  "name": "小学2年生 漢字練習アプリ",
-  "description": "小学2年生が習う漢字をタッチペンで書き順正しく練習！アニメーション・サウンド演出と透かし無し/透かしアリのコンボシステムで楽しく学習するwebアプリ。",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}

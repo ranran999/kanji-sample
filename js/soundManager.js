@@ -2,16 +2,14 @@
 // Generates fun, delightful audio cues without needing external sound files
 
 class SoundManager {
-  private ctx: AudioContext | null = null;
-  private enabled: boolean = true;
-
   constructor() {
-    // Lazy initialize on first user interaction
+    this.ctx = null;
+    this.enabled = true;
   }
 
-  private init() {
+  init() {
     if (!this.ctx && typeof window !== 'undefined') {
-      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
       if (AudioCtx) {
         this.ctx = new AudioCtx();
       }
@@ -21,16 +19,16 @@ class SoundManager {
     }
   }
 
-  public setEnabled(enabled: boolean) {
+  setEnabled(enabled) {
     this.enabled = enabled;
   }
 
-  public isEnabled(): boolean {
+  isEnabled() {
     return this.enabled;
   }
 
   // Play subtle brush/pen start sound
-  public playPenStart() {
+  playPenStart() {
     if (!this.enabled) return;
     this.init();
     if (!this.ctx) return;
@@ -55,14 +53,14 @@ class SoundManager {
   }
 
   // Play correct stroke sound (pleasant marimba/bell chime)
-  public playCorrectStroke(strokeNumber: number = 1) {
+  playCorrectStroke(strokeNumber = 1) {
     if (!this.enabled) return;
     this.init();
     if (!this.ctx) return;
 
     try {
       // Scale pitch slightly with stroke number for a melody feel
-      const baseFreqs = [523.25, 587.33, 659.25, 698.46, 783.99, 880.0, 987.77, 1046.50, 1174.66, 1318.51, 1396.91, 1567.98];
+      const baseFreqs = [523.25, 587.33, 659.25, 698.46, 783.99, 880.0, 987.77, 1046.5, 1174.66, 1318.51, 1396.91, 1567.98];
       const freq = baseFreqs[(strokeNumber - 1) % baseFreqs.length] || 659.25;
 
       const osc = this.ctx.createOscillator();
@@ -85,7 +83,7 @@ class SoundManager {
   }
 
   // Play wrong stroke sound (gentle friendly oops sound, not scary)
-  public playWrongStroke() {
+  playWrongStroke() {
     if (!this.enabled) return;
     this.init();
     if (!this.ctx) return;
@@ -111,17 +109,17 @@ class SoundManager {
   }
 
   // Play Gold Clear fanfare (No watermark clear! Exciting melody!)
-  public playGoldClear() {
+  playGoldClear() {
     if (!this.enabled) return;
     this.init();
     if (!this.ctx) return;
 
     try {
       const now = this.ctx.currentTime;
-      const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51]; // C E G C E high
+      const notes = [523.25, 659.25, 783.99, 1046.5, 1318.51]; // C E G C E high
       notes.forEach((freq, idx) => {
-        const osc = this!.ctx!.createOscillator();
-        const gain = this!.ctx!.createGain();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
         osc.type = 'triangle';
         osc.frequency.setValueAtTime(freq, now + idx * 0.08);
 
@@ -130,7 +128,7 @@ class SoundManager {
         gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.4);
 
         osc.connect(gain);
-        gain.connect(this!.ctx!.destination);
+        gain.connect(this.ctx.destination);
         osc.start(now + idx * 0.08);
         osc.stop(now + idx * 0.08 + 0.4);
       });
@@ -140,7 +138,7 @@ class SoundManager {
   }
 
   // Play Silver Clear jingle (With watermark clear! Cheerful reward!)
-  public playSilverClear() {
+  playSilverClear() {
     if (!this.enabled) return;
     this.init();
     if (!this.ctx) return;
@@ -149,8 +147,8 @@ class SoundManager {
       const now = this.ctx.currentTime;
       const notes = [523.25, 587.33, 659.25, 783.99]; // C D E G
       notes.forEach((freq, idx) => {
-        const osc = this!.ctx!.createOscillator();
-        const gain = this!.ctx!.createGain();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
         osc.type = 'sine';
         osc.frequency.setValueAtTime(freq, now + idx * 0.09);
 
@@ -159,7 +157,7 @@ class SoundManager {
         gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.09 + 0.35);
 
         osc.connect(gain);
-        gain.connect(this!.ctx!.destination);
+        gain.connect(this.ctx.destination);
         osc.start(now + idx * 0.09);
         osc.stop(now + idx * 0.09 + 0.35);
       });
@@ -169,7 +167,7 @@ class SoundManager {
   }
 
   // Play Combo Up sound
-  public playComboUp(comboCount: number) {
+  playComboUp(comboCount) {
     if (!this.enabled) return;
     this.init();
     if (!this.ctx) return;
@@ -197,7 +195,7 @@ class SoundManager {
   }
 
   // Play mode switch sound (Watermark ON/OFF toggle or auto switch)
-  public playModeSwitch(isWatermarkOn: boolean) {
+  playModeSwitch(isWatermarkOn) {
     if (!this.enabled) return;
     this.init();
     if (!this.ctx) return;
@@ -230,7 +228,7 @@ class SoundManager {
   }
 
   // Button click
-  public playClick() {
+  playClick() {
     if (!this.enabled) return;
     this.init();
     if (!this.ctx) return;

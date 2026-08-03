@@ -1,9 +1,7 @@
-import { KanjiStroke, Point, StrokeAttemptResult } from '../types';
-
 /**
  * Normalizes canvas pixel coordinates to 0-100 range
  */
-export function normalizePoint(pt: { x: number; y: number }, canvasWidth: number, canvasHeight: number): Point {
+export function normalizePoint(pt, canvasWidth, canvasHeight) {
   return {
     x: Math.max(0, Math.min(100, (pt.x / canvasWidth) * 100)),
     y: Math.max(0, Math.min(100, (pt.y / canvasHeight) * 100)),
@@ -13,7 +11,7 @@ export function normalizePoint(pt: { x: number; y: number }, canvasWidth: number
 /**
  * Calculates Euclidean distance between two 0-100 normalized points
  */
-export function distance(p1: Point, p2: Point): number {
+export function distance(p1, p2) {
   const dx = p1.x - p2.x;
   const dy = p1.y - p2.y;
   return Math.sqrt(dx * dx + dy * dy);
@@ -23,11 +21,7 @@ export function distance(p1: Point, p2: Point): number {
  * Evaluates whether a user's drawn stroke (array of normalized points) matches
  * the expected KanjiStroke for the current step.
  */
-export function evaluateStroke(
-  userPoints: Point[],
-  expectedStroke: KanjiStroke,
-  tolerance: number = 24 // Generous tolerance for elementary schoolers
-): StrokeAttemptResult {
+export function evaluateStroke(userPoints, expectedStroke, tolerance = 24) {
   if (!userPoints || userPoints.length < 2) {
     return {
       isCorrect: false,
@@ -71,7 +65,8 @@ export function evaluateStroke(
   // Dot strokes or very short strokes
   const expectedLen = Math.sqrt(expectedDx * expectedDx + expectedDy * expectedDy);
   if (expectedLen > 8) {
-    const dotProduct = (expectedDx * userDx + expectedDy * userDy) /
+    const dotProduct =
+      (expectedDx * userDx + expectedDy * userDy) /
       (expectedLen * Math.sqrt(userDx * userDx + userDy * userDy) || 1);
 
     if (dotProduct < 0.25) {
