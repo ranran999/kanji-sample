@@ -1,66 +1,59 @@
-import { KanjiCategory, KanjiItem } from '../types';
 
 // カテゴリー情報（小学生が直感で選べるテーマ）
-export const KANJI_CATEGORIES: {
-  id: KanjiCategory;
-  name: string;
-  emoji: string;
-  description: string;
-  color: string;
-}[] = [
+export const KANJI_CATEGORIES = [
   {
     id: 'nature',
     name: '自然と天気',
     emoji: '🌿',
     description: '海や雨、雲など自然の漢字',
-    color: 'from-blue-400 to-cyan-500',
+    gradient: 'linear-gradient(135deg, #60a5fa, #06b6d4)',
   },
   {
     id: 'school',
     name: '学校と勉強',
     emoji: '🏫',
     description: '学校で使うことばの漢字',
-    color: 'from-amber-400 to-orange-500',
+    gradient: 'linear-gradient(135deg, #fbbf24, #f97316)',
   },
   {
     id: 'family',
     name: '家族と人',
     emoji: '👨‍👩‍👧‍👦',
     description: 'お父さん、お母さん、お友達',
-    color: 'from-pink-400 to-rose-500',
+    gradient: 'linear-gradient(135deg, #f472b6, #f43f5e)',
   },
   {
     id: 'time',
     name: '時間と日にち',
     emoji: '🕒',
     description: '時間や曜日の漢字',
-    color: 'from-purple-400 to-indigo-500',
+    gradient: 'linear-gradient(135deg, #c084fc, #6366f1)',
   },
   {
     id: 'animals',
     name: '動物・植物・食べ物',
     emoji: '🐶',
     description: 'いきものや食べ物の漢字',
-    color: 'from-emerald-400 to-green-600',
+    gradient: 'linear-gradient(135deg, #34d399, #16a34a)',
   },
   {
     id: 'places',
     name: '街・場所・方角',
     emoji: '🏙️',
     description: 'お店や東西南北など',
-    color: 'from-sky-400 to-blue-600',
+    gradient: 'linear-gradient(135deg, #38bdf8, #2563eb)',
   },
   {
     id: 'actions',
     name: 'うごきとことば',
     emoji: '🔢',
     description: '行く、話す、聞くなど',
-    color: 'from-violet-400 to-fuchsia-600',
+    gradient: 'linear-gradient(135deg, #a78bfa, #c026d3)',
   },
 ];
 
 // 小学2年生の漢字全160字の包括的学習データベース
-export const KANJI_DATA: KanjiItem[] = [
+export const KANJI_DATA = [
   // === 自然と天気 ===
   {
     id: 'umi',
