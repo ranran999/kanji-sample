@@ -572,7 +572,7 @@ export const KANJI_DATA = [
     grade: 2,
     strokeCount: 12,
     readings: { onyomi: ['チョウ'], kunyomi: ['あさ'] },
-    meaning: '朝・いち日の はじまり',
+    meaning: 'いちにちの はじまりの じかん',
     examples: [
       { word: '朝（あさ）', reading: 'あさ', sentence: '朝、元気に あいさつをする。' },
       { word: '朝ごはん（あさごはん）', reading: 'あさごはん', sentence: 'おいしい 朝ごはんを 食べる。' },

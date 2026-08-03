@@ -650,7 +650,7 @@ canvas {
   align-items: center;
   justify-content: center;
   color: #f3f4f6;
-  opacity: 0.3;
+  opacity: 0;
   transition: opacity 0.3s, color 0.3s;
 }
 
