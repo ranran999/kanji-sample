@@ -1,9 +1,16 @@
 name = "kanji-master-grade2"
 compatibility_date = "2024-11-01"
 
-# This is a plain static HTML/CSS/JS app (no build step). Point Cloudflare
-# Pages at the repository root, either via:
+# If you deploy with the classic Pages CLI, this key is used:
 #   npx wrangler pages deploy .
-# or by connecting the repo in the dashboard with an empty "Build command"
-# and "Build output directory" set to "/".
 pages_build_output_dir = "."
+
+# This is a plain static HTML/CSS/JS app (no build step).
+#
+# Cloudflare's dashboard "Connect to Git" flow creates a Workers project for
+# repos with a wrangler.toml and runs `wrangler deploy`, which reads this
+# [assets] block to serve this whole directory as a static site (no Worker
+# script needed). Must come last -- TOML table headers apply to every key
+# below them, so anything after [assets] would otherwise be nested inside it.
+[assets]
+directory = "."
