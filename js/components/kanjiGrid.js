@@ -1,3 +1,20 @@
+// Convert katakana (音読み) to hiragana so the "today's kanji" tiles never
+// show the kanji character itself -- that would give the answer away
+// before the child even starts writing.
+function katakanaToHiragana(str) {
+  return str.replace(/[ァ-ヶ]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) - 0x60));
+}
+
+function getHiddenAnswerLabel(item) {
+  if (item.readings.kunyomi.length > 0) {
+    return item.readings.kunyomi[0].replace(/（.*?）/g, '');
+  }
+  if (item.readings.onyomi.length > 0) {
+    return katakanaToHiragana(item.readings.onyomi[0]);
+  }
+  return '？';
+}
+
 export function createKanjiGrid(container, callbacks) {
   container.innerHTML = `
     <div class="category-mobile-bar">
@@ -56,7 +73,8 @@ export function createKanjiGrid(container, callbacks) {
         if (!isSelected && clearGrade === 'gold') stamp = '<span class="kanji-tile__stamp gold">金</span>';
         else if (!isSelected && clearGrade === 'silver') stamp = '<span class="kanji-tile__stamp silver">銀</span>';
 
-        return `<div class="${classes.join(' ')}" data-id="${item.id}"><span>${item.character}</span>${stamp}</div>`;
+        const label = getHiddenAnswerLabel(item);
+        return `<div class="${classes.join(' ')}" data-id="${item.id}" title="${item.meaning}"><span>${label}</span>${stamp}</div>`;
       })
       .join('');
   }
