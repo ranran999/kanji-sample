@@ -53,6 +53,15 @@ export class DrawingCanvas {
 
     this._resizeObserver = new ResizeObserver(() => this._resize());
     this._resizeObserver.observe(this.container);
+
+    // Safari/iPadOS can report a transiently-stale bounding rect right when
+    // 'orientationchange' fires, before the post-rotation layout settles;
+    // ResizeObserver alone sometimes misses that follow-up reflow. Re-measure
+    // a couple of frames later as a defensive fallback.
+    this._onOrientationChange = () => {
+      requestAnimationFrame(() => requestAnimationFrame(() => this._resize()));
+    };
+    window.addEventListener('orientationchange', this._onOrientationChange);
   }
 
   _buildDom() {
@@ -157,6 +166,7 @@ export class DrawingCanvas {
     this._clearFeedbackTimers();
     this._clearHintTimer();
     this._resizeObserver.disconnect();
+    window.removeEventListener('orientationchange', this._onOrientationChange);
   }
 
   _resetProgress() {
@@ -435,18 +445,24 @@ export class DrawingCanvas {
 
     // 3. Demo ("見本") playback, following the real svgPath geometry
     if (this.isDemoPlaying && this.demoStrokeIndex >= 0) {
-      const scale = w / 100;
+      // svgPath coordinates are authored in a 0-100 square. Scale x and y
+      // independently (not by a single shared factor) so paths still line
+      // up with the hint/watermark overlay -- which are positioned as
+      // percentages of the actual (possibly non-square) canvas box -- even
+      // when the box isn't perfectly square.
+      const scaleX = w / 100;
+      const scaleY = h / 100;
 
       // Already-shown demo strokes: render the exact authored path shape.
       for (let i = 0; i < this.demoStrokeIndex; i++) {
         const strokeData = this.kanji.strokes[i];
         if (!strokeData?.svgPath) continue;
         this.ctx.save();
-        this.ctx.scale(scale, scale);
+        this.ctx.scale(scaleX, scaleY);
         this.ctx.lineCap = 'round';
         this.ctx.lineJoin = 'round';
         this.ctx.strokeStyle = '#2EC4B6';
-        this.ctx.lineWidth = (DEMO_DONE_WIDTH * w) / scale;
+        this.ctx.lineWidth = DEMO_DONE_WIDTH * 100;
         this.ctx.stroke(getPath2D(strokeData.svgPath));
         this.ctx.restore();
       }

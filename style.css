@@ -592,6 +592,12 @@ canvas {
 
 .drawing-canvas-wrap {
   flex: 1;
+  /* Override the row's align-items:stretch (see .app-main) -- without this,
+     a wide-but-short viewport (e.g. iPad landscape) stretches this box to
+     the row's cross-axis height, fighting aspect-ratio and leaving it
+     non-square. That desyncs the demo/hint overlay positions (laid out as
+     percentages of this box) from the canvas drawing surface. */
+  align-self: center;
   width: 100%;
   max-width: 560px;
   aspect-ratio: 1 / 1;
