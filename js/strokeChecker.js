@@ -1,3 +1,5 @@
+import { sampleSegment } from './pathMeasure.js';
+
 /**
  * Normalizes canvas pixel coordinates to 0-100 range
  */
@@ -16,6 +18,44 @@ export function distance(p1, p2) {
   const dy = p1.y - p2.y;
   return Math.sqrt(dx * dx + dy * dy);
 }
+
+/**
+ * How far a path's points bulge away from the straight chord connecting
+ * its first and last point -- ~0 for a straight line, larger for a path
+ * that visibly bends/hooks/curves partway through.
+ */
+export function maxChordDeviation(points) {
+  if (!points || points.length < 2) return 0;
+  const start = points[0];
+  const end = points[points.length - 1];
+  const dx = end.x - start.x;
+  const dy = end.y - start.y;
+  const lenSq = dx * dx + dy * dy;
+
+  let maxDev = 0;
+  for (const p of points) {
+    let dev;
+    if (lenSq < 1e-6) {
+      dev = distance(p, start);
+    } else {
+      const t = Math.max(0, Math.min(1, ((p.x - start.x) * dx + (p.y - start.y) * dy) / lenSq));
+      const projX = start.x + t * dx;
+      const projY = start.y + t * dy;
+      dev = Math.hypot(p.x - projX, p.y - projY);
+    }
+    if (dev > maxDev) maxDev = dev;
+  }
+  return maxDev;
+}
+
+// Below this much chord deviation (0-100 space), a stroke's real path is
+// essentially straight, so there's no bend to require from the child.
+const BEND_SIGNIFICANT_THRESHOLD = 10;
+// How much of the real stroke's bend the child's line needs to show, once
+// it's decided the real stroke does bend. Kept loose on purpose -- kids
+// won't draw as crisp a hook as the reference path, they just shouldn't
+// draw straight through it.
+const MIN_USER_BEND_FRACTION = 0.2;
 
 /**
  * Evaluates whether a user's drawn stroke (array of normalized points) matches
@@ -78,7 +118,27 @@ export function evaluateStroke(userPoints, expectedStroke, tolerance = 24) {
     }
   }
 
-  // If start, end, and direction are good -> Correct stroke!
+  // Check that a stroke which is actually meant to bend (a hook, a corner,
+  // a sweep) isn't satisfied by a straight scribble between its start and
+  // end -- start/end/direction alone can't tell those apart, since a
+  // straight line and an L-shaped hook can share the same endpoints and
+  // overall direction.
+  if (expectedStroke.svgPath) {
+    const expectedPoints = sampleSegment(expectedStroke.svgPath, 0, 1, 20);
+    const expectedBend = maxChordDeviation(expectedPoints);
+    if (expectedBend > BEND_SIGNIFICANT_THRESHOLD) {
+      const userBend = maxChordDeviation(userPoints);
+      if (userBend < expectedBend * MIN_USER_BEND_FRACTION) {
+        return {
+          isCorrect: false,
+          strokeNumber: expectedStroke.strokeNumber,
+          message: 'とちゅうで まがる ところが あるよ！',
+        };
+      }
+    }
+  }
+
+  // If start, end, direction, and shape are good -> Correct stroke!
   return {
     isCorrect: true,
     strokeNumber: expectedStroke.strokeNumber,
