@@ -4,6 +4,13 @@ export function createFooter(container) {
       <div class="footer-status__dot"></div>
       <span class="footer-status__text"></span>
     </div>
+    <a
+      class="footer-credit"
+      href="https://github.com/KanjiVG/kanjivg"
+      target="_blank"
+      rel="noopener noreferrer"
+      title="書き順データはKanjiVGを参考に作成しています（CC BY-SA 3.0）"
+    >書き順データ: KanjiVG (CC BY-SA 3.0)</a>
     <div class="footer-progress-text"></div>
   `;
 
