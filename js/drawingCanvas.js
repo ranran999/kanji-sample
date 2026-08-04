@@ -17,6 +17,9 @@ const FEEDBACK_VISIBLE_MS = 850;
 const FEEDBACK_FADE_MS = 250;
 const DEMO_STROKE_DURATION_MS = 700;
 const DEMO_STROKE_GAP_MS = 120;
+// Give the child a few quiet seconds to try the stroke from memory before
+// the number/position hint appears.
+const HINT_DELAY_MS = 3000;
 
 export class DrawingCanvas {
   constructor(container, callbacks) {
@@ -40,6 +43,9 @@ export class DrawingCanvas {
 
     this.feedbackHideTimer = null;
     this.feedbackFadeTimer = null;
+
+    this.hintDelayTimer = null;
+    this.hintReadyForIndex = -1;
 
     this._buildDom();
     this._bindEvents();
@@ -137,9 +143,11 @@ export class DrawingCanvas {
     this.isDemoPlaying = isPlaying;
     if (isPlaying) {
       this._hideFeedbackImmediately();
+      this._clearHintTimer();
       this._startDemo();
     } else {
       this._stopDemo();
+      this._scheduleHintForCurrentStroke();
       this._render();
     }
   }
@@ -147,6 +155,7 @@ export class DrawingCanvas {
   destroy() {
     this._stopDemo();
     this._clearFeedbackTimers();
+    this._clearHintTimer();
     this._resizeObserver.disconnect();
   }
 
@@ -158,8 +167,33 @@ export class DrawingCanvas {
     this.isDemoPlaying = false;
     this._stopDemo();
     this._hideFeedbackImmediately();
+    this.hintReadyForIndex = -1;
+    this._scheduleHintForCurrentStroke();
     document.body.classList.remove('is-drawing');
     this._render();
+  }
+
+  // ------------------------------------------------------------------
+  // Stroke-number hint delay: wait a few quiet seconds before revealing
+  // where/what the current stroke is, so a child gets a chance to try it
+  // from memory first.
+  // ------------------------------------------------------------------
+
+  _clearHintTimer() {
+    if (this.hintDelayTimer) {
+      clearTimeout(this.hintDelayTimer);
+      this.hintDelayTimer = null;
+    }
+  }
+
+  _scheduleHintForCurrentStroke() {
+    this._clearHintTimer();
+    const targetIndex = this.currentStrokeIndex;
+    this.hintDelayTimer = setTimeout(() => {
+      this.hintDelayTimer = null;
+      this.hintReadyForIndex = targetIndex;
+      this._updateOverlay();
+    }, HINT_DELAY_MS);
   }
 
   // ------------------------------------------------------------------
@@ -220,9 +254,11 @@ export class DrawingCanvas {
         // collide with the full-screen completion celebration that's
         // about to fire, so only one effect is ever on screen at once.
         this._hideFeedbackImmediately();
+        this._clearHintTimer();
       } else {
         const msg = SUCCESS_MESSAGES[Math.floor(Math.random() * SUCCESS_MESSAGES.length)];
         this._showFeedback(msg, 'success');
+        this._scheduleHintForCurrentStroke();
       }
 
       this._render();
@@ -314,6 +350,7 @@ export class DrawingCanvas {
             this.demoStrokeIndex = -1;
             this.demoProgress = 0;
             this.isDemoPlaying = false;
+            this._scheduleHintForCurrentStroke();
             this._render();
             this.callbacks.onDemoEnd();
             return;
@@ -349,7 +386,8 @@ export class DrawingCanvas {
     const isComplete = this.currentStrokeIndex >= total;
     const currentStroke = this.kanji.strokes[this.currentStrokeIndex];
 
-    const showHint = !this.isDemoPlaying && !isComplete && currentStroke;
+    const showHint =
+      !this.isDemoPlaying && !isComplete && currentStroke && this.hintReadyForIndex === this.currentStrokeIndex;
     this.hintEl.classList.toggle('hidden', !showHint);
     if (showHint) {
       this.hintEl.style.left = `${currentStroke.start.x}%`;

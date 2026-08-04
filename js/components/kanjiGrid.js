@@ -1,19 +1,4 @@
-// Convert katakana (音読み) to hiragana so the "today's kanji" tiles never
-// show the kanji character itself -- that would give the answer away
-// before the child even starts writing.
-function katakanaToHiragana(str) {
-  return str.replace(/[ァ-ヶ]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) - 0x60));
-}
-
-function getHiddenAnswerLabel(item) {
-  if (item.readings.kunyomi.length > 0) {
-    return item.readings.kunyomi[0].replace(/（.*?）/g, '');
-  }
-  if (item.readings.onyomi.length > 0) {
-    return katakanaToHiragana(item.readings.onyomi[0]);
-  }
-  return '？';
-}
+import { getHiddenAnswerLabel } from '../kanjiText.js';
 
 export function createKanjiGrid(container, callbacks) {
   container.innerHTML = `
