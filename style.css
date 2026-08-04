@@ -1280,7 +1280,10 @@ canvas {
   border: 2px solid var(--gray-300);
   border-radius: 12px;
   padding: 9px 14px;
-  font-size: 14px;
+  /* iOS Safari auto-zooms the page on focus when a form field's font-size
+     is under 16px -- no amount of viewport-meta or JS preventDefault stops
+     that, so this has to stay >=16px. */
+  font-size: 16px;
   font-weight: 700;
 }
 
@@ -1294,7 +1297,7 @@ canvas {
   border: 2px solid var(--gray-300);
   border-radius: 12px;
   padding: 9px 10px;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 700;
 }
 
