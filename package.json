@@ -3,6 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "description": "小学2年生向け 漢字の書き順練習アプリ（ビルド不要のプレーンHTML/CSS/JS、Cloudflare Pages想定）",
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "dev": "npx --yes serve . -l 3000",

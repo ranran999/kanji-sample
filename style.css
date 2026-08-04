@@ -1057,6 +1057,19 @@ canvas {
   font-weight: 700;
 }
 
+.footer-credit {
+  font-size: 10px;
+  color: var(--gray-400);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.footer-credit:hover {
+  color: var(--gray-300);
+  text-decoration: underline;
+}
+
 /* ==========================================================================
    Confetti overlay
    ========================================================================== */
