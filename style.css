@@ -943,6 +943,15 @@ canvas {
   line-height: 1.5;
 }
 
+.readings-card__example .masked-reading {
+  background: var(--amber-100);
+  color: var(--amber-900);
+  font-weight: 800;
+  font-style: normal;
+  padding: 1px 3px;
+  border-radius: 4px;
+}
+
 .action-stack {
   flex: 1;
   display: flex;
