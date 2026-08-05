@@ -280,6 +280,7 @@ canvas {
 }
 
 .header-progress-fill {
+  width: 0%;
   height: 100%;
   background: var(--teal);
   border-radius: 999px;
@@ -1223,6 +1224,14 @@ canvas {
   font-size: 12px;
   font-weight: 700;
   flex-wrap: wrap;
+}
+
+.gold-count {
+  color: #d97706;
+}
+
+.silver-count {
+  color: #475569;
 }
 
 .modal-close {

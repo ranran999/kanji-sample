@@ -29,7 +29,7 @@ export function createHeader(container, callbacks) {
         <span class="header-progress-label">できた かず</span>
         <div class="header-progress-bar-row">
           <div class="header-progress-track">
-            <div class="header-progress-fill" style="width:0%"></div>
+            <div class="header-progress-fill"></div>
           </div>
           <span class="header-progress-count"></span>
         </div>
