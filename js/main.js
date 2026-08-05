@@ -42,6 +42,7 @@ const state = {
   currentCategory: initialCategory,
   currentKanjiId: initialKanji ? initialKanji.id : 'umi',
   isWatermarkOn: false,
+  isTestMode: false,
   isDemoPlaying: false,
   clearTrigger: 0,
   combo: 0,
@@ -85,6 +86,7 @@ const header = createHeader(document.getElementById('app-header'), {
     state.isAllKanjiModalOpen = true;
     render();
   },
+  onToggleTestMode: handleToggleTestMode,
 });
 
 const kanjiGrid = createKanjiGrid(document.getElementById('kanji-grid'), {
@@ -139,9 +141,22 @@ const allKanjiModal = createAllKanjiModal(document.getElementById('all-kanji-mod
 // ------------------------------------------------------------------------
 
 function handleToggleWatermark() {
+  if (state.isTestMode) return;
   const next = !state.isWatermarkOn;
   state.isWatermarkOn = next;
   soundManager.playModeSwitch(next);
+  render();
+}
+
+// テストモード: no tracing watermark and no stroke hints, so a mistake is
+// just a mistake -- like a real test, not a nazori-practice session.
+function handleToggleTestMode() {
+  soundManager.playClick();
+  state.isTestMode = !state.isTestMode;
+  if (state.isTestMode) {
+    state.isWatermarkOn = false;
+    state.isDemoPlaying = false;
+  }
   render();
 }
 
@@ -198,7 +213,7 @@ function handleStrokeSuccess(strokeIndex) {
 // なぞり書きモード (watermark) automatically so the combo streak survives.
 function handleStrokeFail() {
   soundManager.playWrongStroke();
-  if (!state.isWatermarkOn) {
+  if (!state.isTestMode && !state.isWatermarkOn) {
     state.isWatermarkOn = true;
     soundManager.playModeSwitch(true);
   }
@@ -247,6 +262,7 @@ function handleKanjiComplete(completedWithWatermark) {
 }
 
 function handlePlayDemo() {
+  if (state.isTestMode) return;
   soundManager.playClick();
   state.isDemoPlaying = true;
   render();
@@ -281,6 +297,7 @@ function render() {
     totalKanji: KANJI_DATA.length,
     currentCategory: state.currentCategory,
     soundEnabled: state.soundEnabled,
+    isTestMode: state.isTestMode,
   });
 
   kanjiGrid.update({
@@ -295,10 +312,12 @@ function render() {
     kanji: currentKanji,
     isWatermarkOn: state.isWatermarkOn,
     isDemoPlaying: state.isDemoPlaying,
+    isTestMode: state.isTestMode,
   });
 
   footer.update({
     isWatermarkOn: state.isWatermarkOn,
+    isTestMode: state.isTestMode,
     categoryName: currentCategoryName,
     indexInCategory: kanjiListForCategory.findIndex((k) => k.id === currentKanji.id) + 1,
     totalInCategory: kanjiListForCategory.length,
@@ -320,6 +339,7 @@ function render() {
     canvas.setKanji(currentKanji);
   }
   canvas.setWatermark(state.isWatermarkOn);
+  canvas.setTestMode(state.isTestMode);
   canvas.setDemoPlaying(state.isDemoPlaying);
 }
 

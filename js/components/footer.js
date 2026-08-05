@@ -20,7 +20,11 @@ export function createFooter(container) {
   };
 
   function update(state) {
-    els.statusText.textContent = `Touch / Stylus Active: ${state.isWatermarkOn ? 'なぞり書きモード (銀)' : 'チャレンジモード (金)'}`;
+    els.statusText.textContent = state.isTestMode
+      ? '🧪 テストモード'
+      : state.isWatermarkOn
+        ? 'なぞり書きモード (銀)'
+        : 'チャレンジモード (金)';
     els.progressText.textContent = `テーマ: ${state.categoryName} (${state.indexInCategory}/${state.totalInCategory})`;
   }
 

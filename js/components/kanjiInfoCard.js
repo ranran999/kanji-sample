@@ -35,11 +35,11 @@ export function createKanjiInfoCard(container, callbacks) {
             <div class="watermark-toggle__grade"></div>
           </div>
         </div>
-        <span class="watermark-toggle__switch">切替</span>
+        <span class="watermark-toggle__switch">きりかえ</span>
       </button>
 
       <button type="button" class="btn-next" data-action="next">
-        <span class="btn-next__text">NEXT!</span>
+        <span class="btn-next__text">次へ</span>
         <span class="btn-next__icon">👉</span>
       </button>
     </div>
@@ -56,6 +56,7 @@ export function createKanjiInfoCard(container, callbacks) {
     watermarkEmoji: container.querySelector('.watermark-toggle__emoji'),
     watermarkLabel: container.querySelector('.watermark-toggle__label'),
     watermarkGrade: container.querySelector('.watermark-toggle__grade'),
+    watermarkSwitch: container.querySelector('.watermark-toggle__switch'),
   };
 
   els.demoBtn.addEventListener('click', () => callbacks.onPlayDemo());
@@ -72,14 +73,23 @@ export function createKanjiInfoCard(container, callbacks) {
       kanji.examples.length > 0 ? `「${maskAnswerInText(kanji.examples[0].sentence, kanji)}」` : '';
     els.example.style.display = kanji.examples.length > 0 ? '' : 'none';
 
-    els.demoBtn.disabled = state.isDemoPlaying;
+    els.demoBtn.disabled = state.isDemoPlaying || state.isTestMode;
     els.demoLabel.textContent = state.isDemoPlaying ? 'さいせい中' : 'みほん';
 
+    els.watermarkBtn.disabled = state.isTestMode;
     els.watermarkBtn.classList.toggle('off', !state.isWatermarkOn);
     els.watermarkBtn.classList.toggle('on', state.isWatermarkOn);
-    els.watermarkEmoji.textContent = state.isWatermarkOn ? '🥈' : '🥇';
-    els.watermarkLabel.textContent = state.isWatermarkOn ? 'なぞり書きモード' : 'チャレンジモード';
-    els.watermarkGrade.textContent = state.isWatermarkOn ? '透かしアリ (銀)' : '透かし無し (金)';
+    els.watermarkBtn.classList.toggle('is-locked', state.isTestMode);
+    els.watermarkSwitch.style.display = state.isTestMode ? 'none' : '';
+    if (state.isTestMode) {
+      els.watermarkEmoji.textContent = '🧪';
+      els.watermarkLabel.textContent = 'テストモード';
+      els.watermarkGrade.textContent = '見本もヒントも なし';
+    } else {
+      els.watermarkEmoji.textContent = state.isWatermarkOn ? '🥈' : '🥇';
+      els.watermarkLabel.textContent = state.isWatermarkOn ? 'なぞり書きモード' : 'チャレンジモード';
+      els.watermarkGrade.textContent = state.isWatermarkOn ? '透かしアリ (銀)' : '透かし無し (金)';
+    }
   }
 
   return { update };

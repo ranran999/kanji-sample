@@ -331,6 +331,36 @@ canvas {
   box-shadow: none;
 }
 
+.test-mode-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 12px;
+  background: #fff;
+  color: var(--navy);
+  font-size: 12px;
+  font-weight: 900;
+  box-shadow: 0 2px 0 var(--gray-200);
+  flex-shrink: 0;
+  transition: transform 0.1s, background 0.15s, color 0.15s;
+}
+
+.test-mode-toggle:active {
+  transform: translateY(1px);
+}
+
+.test-mode-toggle.is-on {
+  background: var(--red);
+  color: #fff;
+  box-shadow: 0 2px 0 var(--red-dark);
+}
+
+.test-mode-toggle__icon {
+  font-size: 16px;
+}
+
 /* ==========================================================================
    Main layout
    ========================================================================== */
@@ -943,6 +973,13 @@ canvas {
   background: var(--slate-100);
   border-color: var(--slate-400);
   color: var(--text-main);
+}
+
+.watermark-toggle.is-locked {
+  background: var(--slate-50);
+  border-color: var(--slate-300);
+  color: var(--slate-600);
+  cursor: default;
 }
 
 .watermark-toggle__left {
