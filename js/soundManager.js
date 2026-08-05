@@ -227,6 +227,23 @@ class SoundManager {
     }
   }
 
+  // Spoken announcement (e.g. "テストを終了します") via the browser's built-in
+  // text-to-speech -- no audio asset needed, works offline like the other cues.
+  speak(text) {
+    if (!this.enabled) return;
+    if (typeof window === 'undefined' || !window.speechSynthesis) return;
+    try {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'ja-JP';
+      utterance.rate = 0.95;
+      utterance.pitch = 1.05;
+      window.speechSynthesis.speak(utterance);
+    } catch {
+      // Ignore
+    }
+  }
+
   // Button click
   playClick() {
     if (!this.enabled) return;

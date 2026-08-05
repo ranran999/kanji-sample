@@ -41,7 +41,7 @@ export function createHeader(container, callbacks) {
         </div>
       </div>
 
-      <button type="button" class="test-mode-toggle" data-action="test-mode" title="テストモード：見本やヒントなしで書く">
+      <button type="button" class="test-mode-toggle" data-action="test-mode" title="テストモードのオン・オフ（オフにするには2秒長押し）">
         <span class="test-mode-toggle__icon">🧪</span>
         <span class="test-mode-toggle__label">テスト</span>
       </button>
@@ -64,7 +64,33 @@ export function createHeader(container, callbacks) {
   container.querySelector('[data-action="category"]').addEventListener('click', () => callbacks.onOpenCategoryModal());
   container.querySelector('[data-action="all-kanji"]').addEventListener('click', () => callbacks.onOpenAllKanjiModal());
   els.soundToggle.addEventListener('click', () => callbacks.onToggleSound());
-  els.testModeToggle.addEventListener('click', () => callbacks.onToggleTestMode());
+
+  // Turning test mode ON is a normal tap. Turning it back OFF requires a
+  // ~2s press-and-hold, so a child can't escape a test with one stray tap.
+  const TEST_MODE_EXIT_HOLD_MS = 2000;
+  let testModeHoldTimer = null;
+
+  function cancelTestModeHold() {
+    if (testModeHoldTimer) {
+      clearTimeout(testModeHoldTimer);
+      testModeHoldTimer = null;
+    }
+  }
+
+  els.testModeToggle.addEventListener('pointerdown', () => {
+    if (els.testModeToggle.classList.contains('is-on')) {
+      cancelTestModeHold();
+      testModeHoldTimer = setTimeout(() => {
+        testModeHoldTimer = null;
+        callbacks.onToggleTestMode();
+      }, TEST_MODE_EXIT_HOLD_MS);
+    } else {
+      callbacks.onToggleTestMode();
+    }
+  });
+  ['pointerup', 'pointerleave', 'pointercancel'].forEach((evt) =>
+    els.testModeToggle.addEventListener(evt, cancelTestModeHold)
+  );
 
   function update(state) {
     const categoryInfo = KANJI_CATEGORIES.find((c) => c.id === state.currentCategory);
