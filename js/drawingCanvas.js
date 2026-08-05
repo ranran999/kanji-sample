@@ -12,7 +12,7 @@ const DEMO_DONE_WIDTH = 24 / REF;
 const DEMO_ACTIVE_WIDTH = 26 / REF;
 const DEMO_TIP_RADIUS = 14 / REF;
 
-const SUCCESS_MESSAGES = ['✨ GOOD!', '🔥 PERFECT!', '🌟 NICE!'];
+const SUCCESS_MESSAGES = ['✨ できた！', '🔥 かんぺき！', '🌟 すごい！'];
 const FEEDBACK_VISIBLE_MS = 850;
 const FEEDBACK_FADE_MS = 250;
 const DEMO_STROKE_DURATION_MS = 700;
@@ -29,6 +29,7 @@ export class DrawingCanvas {
     this.kanji = null;
     this.isWatermarkOn = false;
     this.isDemoPlaying = false;
+    this.isTestMode = false;
 
     this.currentStrokeIndex = 0;
     this.completedStrokes = [];
@@ -143,6 +144,20 @@ export class DrawingCanvas {
     this.watermarkEl.classList.toggle('is-on', isOn);
   }
 
+  // Test mode: no watermark tracing, no early stroke-number hint -- the
+  // child has to recall the kanji unaided, like a real test.
+  setTestMode(isOn) {
+    if (isOn === this.isTestMode) return;
+    this.isTestMode = isOn;
+    if (isOn) {
+      this._clearHintTimer();
+      this.hintReadyForIndex = -1;
+    } else {
+      this._scheduleHintForCurrentStroke();
+    }
+    this._updateOverlay();
+  }
+
   clear() {
     this._resetProgress();
   }
@@ -198,6 +213,7 @@ export class DrawingCanvas {
 
   _scheduleHintForCurrentStroke() {
     this._clearHintTimer();
+    if (this.isTestMode) return;
     const targetIndex = this.currentStrokeIndex;
     this.hintDelayTimer = setTimeout(() => {
       this.hintDelayTimer = null;
@@ -397,7 +413,11 @@ export class DrawingCanvas {
     const currentStroke = this.kanji.strokes[this.currentStrokeIndex];
 
     const showHint =
-      !this.isDemoPlaying && !isComplete && currentStroke && this.hintReadyForIndex === this.currentStrokeIndex;
+      !this.isDemoPlaying &&
+      !this.isTestMode &&
+      !isComplete &&
+      currentStroke &&
+      this.hintReadyForIndex === this.currentStrokeIndex;
     this.hintEl.classList.toggle('hidden', !showHint);
     if (showHint) {
       this.hintEl.style.left = `${currentStroke.start.x}%`;

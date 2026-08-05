@@ -14,7 +14,7 @@ export function createHeader(container, callbacks) {
       <button type="button" class="btn-pill btn-pill--light" data-action="category">
         <span class="cat-emoji"></span>
         <span class="cat-name"></span>
-        <span class="btn-pill-tag">変更</span>
+        <span class="btn-pill-tag">かえる</span>
       </button>
       <button type="button" class="btn-pill btn-pill--dark" data-action="all-kanji">
         <span>📖</span>
@@ -24,7 +24,7 @@ export function createHeader(container, callbacks) {
 
     <div class="header-right">
       <div class="header-progress">
-        <span class="header-progress-label">Progress</span>
+        <span class="header-progress-label">できた かず</span>
         <div class="header-progress-bar-row">
           <div class="header-progress-track">
             <div class="header-progress-fill" style="width:0%"></div>
@@ -41,6 +41,11 @@ export function createHeader(container, callbacks) {
         </div>
       </div>
 
+      <button type="button" class="test-mode-toggle" data-action="test-mode" title="テストモードのオン・オフ（オフにするには2秒長押し）">
+        <span class="test-mode-toggle__icon">🧪</span>
+        <span class="test-mode-toggle__label">テスト</span>
+      </button>
+
       <button type="button" class="sound-toggle" data-action="sound" title="音をオン・オフ"></button>
     </div>
   `;
@@ -52,11 +57,40 @@ export function createHeader(container, callbacks) {
     progressCount: container.querySelector('.header-progress-count'),
     comboNumber: container.querySelector('.combo-number'),
     soundToggle: container.querySelector('.sound-toggle'),
+    testModeToggle: container.querySelector('.test-mode-toggle'),
+    testModeLabel: container.querySelector('.test-mode-toggle__label'),
   };
 
   container.querySelector('[data-action="category"]').addEventListener('click', () => callbacks.onOpenCategoryModal());
   container.querySelector('[data-action="all-kanji"]').addEventListener('click', () => callbacks.onOpenAllKanjiModal());
   els.soundToggle.addEventListener('click', () => callbacks.onToggleSound());
+
+  // Turning test mode ON is a normal tap. Turning it back OFF requires a
+  // ~2s press-and-hold, so a child can't escape a test with one stray tap.
+  const TEST_MODE_EXIT_HOLD_MS = 2000;
+  let testModeHoldTimer = null;
+
+  function cancelTestModeHold() {
+    if (testModeHoldTimer) {
+      clearTimeout(testModeHoldTimer);
+      testModeHoldTimer = null;
+    }
+  }
+
+  els.testModeToggle.addEventListener('pointerdown', () => {
+    if (els.testModeToggle.classList.contains('is-on')) {
+      cancelTestModeHold();
+      testModeHoldTimer = setTimeout(() => {
+        testModeHoldTimer = null;
+        callbacks.onToggleTestMode();
+      }, TEST_MODE_EXIT_HOLD_MS);
+    } else {
+      callbacks.onToggleTestMode();
+    }
+  });
+  ['pointerup', 'pointerleave', 'pointercancel'].forEach((evt) =>
+    els.testModeToggle.addEventListener(evt, cancelTestModeHold)
+  );
 
   function update(state) {
     const categoryInfo = KANJI_CATEGORIES.find((c) => c.id === state.currentCategory);
@@ -71,6 +105,9 @@ export function createHeader(container, callbacks) {
 
     els.soundToggle.textContent = state.soundEnabled ? '🔊' : '🔇';
     els.soundToggle.classList.toggle('is-off', !state.soundEnabled);
+
+    els.testModeToggle.classList.toggle('is-on', state.isTestMode);
+    els.testModeLabel.textContent = state.isTestMode ? 'テストちゅう' : 'テスト';
   }
 
   return { update };

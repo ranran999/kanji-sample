@@ -16,7 +16,7 @@ export function createKanjiGrid(container, callbacks) {
     </div>
 
     <div class="stars-card">
-      <p class="stars-card__label">TOTAL STARS</p>
+      <p class="stars-card__label">ほしの かず</p>
       <div class="stars-card__value-row">
         <span class="stars-card__icon">⭐</span>
         <span class="stars-card__value">0</span>
