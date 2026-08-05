@@ -7,6 +7,15 @@
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover"
     />
     <meta name="theme-color" content="#FF9F1C" />
+    <!-- Redundant with the _headers file's CSP on Cloudflare (that one wins
+         when both are present). Kept here too so script/style/img/connect
+         restrictions still apply even on a host with no custom-header
+         support (e.g. GitHub Pages) -- though frame-ancestors, HSTS, and the
+         other _headers-only protections can't be replicated this way. -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; base-uri 'self'; form-action 'none'; object-src 'none'"
+    />
     <title>かん字マスター 小2 - 漢字練習アプリ</title>
     <meta
       name="description"
