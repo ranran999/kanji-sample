@@ -15,8 +15,8 @@ export function createAllKanjiModal(overlayEl, callbacks) {
             <h2 class="modal-header__title">小学２年生 漢字いちらん</h2>
           </div>
           <div class="modal-header__stats">
-            <span class="gold-count" style="color:#d97706;"></span>
-            <span class="silver-count" style="color:#475569;"></span>
+            <span class="gold-count"></span>
+            <span class="silver-count"></span>
           </div>
         </div>
         <button type="button" class="modal-close" data-action="close">✕</button>
