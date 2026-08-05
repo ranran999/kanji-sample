@@ -1123,6 +1123,35 @@ canvas {
   opacity: 1;
 }
 
+.toast {
+  position: fixed;
+  left: 50%;
+  /* Sit just above the footer bar (not on top of it). */
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 64px);
+  transform: translateX(-50%) translateY(8px);
+  background: var(--navy);
+  color: #fff;
+  font-weight: 900;
+  font-size: 14px;
+  padding: 12px 22px;
+  border-radius: 999px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0;
+  max-width: 90vw;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.toast.is-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
 /* ==========================================================================
    Modals
    ========================================================================== */
