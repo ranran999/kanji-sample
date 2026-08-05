@@ -30,9 +30,17 @@ function saveProgress(progressMap) {
   }
 }
 
+function getCategoryIdFromHash() {
+  const hash = decodeURIComponent(location.hash.slice(1));
+  return KANJI_CATEGORIES.some((c) => c.id === hash) ? hash : null;
+}
+
+const initialCategory = getCategoryIdFromHash() || 'nature';
+const initialKanji = KANJI_DATA.find((k) => k.category === initialCategory);
+
 const state = {
-  currentCategory: 'nature',
-  currentKanjiId: 'umi',
+  currentCategory: initialCategory,
+  currentKanjiId: initialKanji ? initialKanji.id : 'umi',
   isWatermarkOn: false,
   isDemoPlaying: false,
   clearTrigger: 0,
@@ -151,8 +159,22 @@ function handleSelectCategory(catId) {
   const firstInCat = KANJI_DATA.find((k) => k.category === catId);
   if (firstInCat) state.currentKanjiId = firstInCat.id;
   state.clearTrigger += 1;
+  location.hash = catId;
   render();
 }
+
+// Keep state in sync if the hash changes from outside a category-modal
+// selection (e.g. the browser's back/forward buttons, or a manually edited URL).
+window.addEventListener('hashchange', () => {
+  const catId = getCategoryIdFromHash();
+  if (!catId || catId === state.currentCategory) return;
+  state.currentCategory = catId;
+  const firstInCat = KANJI_DATA.find((k) => k.category === catId);
+  if (firstInCat) state.currentKanjiId = firstInCat.id;
+  state.isDemoPlaying = false;
+  state.clearTrigger += 1;
+  render();
+});
 
 function handleNextKanji() {
   soundManager.playClick();
