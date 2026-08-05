@@ -8,27 +8,8 @@ import { createKanjiInfoCard } from './components/kanjiInfoCard.js';
 import { createFooter } from './components/footer.js';
 import { createCategoryModal } from './components/categoryModal.js';
 import { createAllKanjiModal } from './components/allKanjiModal.js';
+import { createToast } from './components/toast.js';
 import { installIphoneGuards } from './iphoneGuards.js';
-
-const STORAGE_KEY = 'kanji_app_progress_grade2';
-
-function loadProgress() {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) return JSON.parse(saved);
-  } catch {
-    // ignore
-  }
-  return {};
-}
-
-function saveProgress(progressMap) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(progressMap));
-  } catch {
-    // ignore
-  }
-}
 
 function getCategoryIdFromHash() {
   const hash = decodeURIComponent(location.hash.slice(1));
@@ -48,7 +29,10 @@ const state = {
   combo: 0,
   maxCombo: 0,
   soundEnabled: true,
-  progressMap: loadProgress(),
+  // Not persisted -- each reload starts with a clean slate of gold/silver
+  // medals, so the app can be reused for a fresh test without old results
+  // lingering.
+  progressMap: {},
   isCategoryModalOpen: false,
   isAllKanjiModalOpen: false,
 };
@@ -69,6 +53,7 @@ function getCurrentKanji() {
 // ------------------------------------------------------------------------
 
 const confetti = new Confetti(document.getElementById('confetti-canvas'));
+const toast = createToast(document.getElementById('toast'));
 
 const header = createHeader(document.getElementById('app-header'), {
   onToggleSound: () => {
@@ -87,6 +72,7 @@ const header = createHeader(document.getElementById('app-header'), {
     render();
   },
   onToggleTestMode: handleToggleTestMode,
+  onToggleWatermark: handleToggleWatermark,
 });
 
 const kanjiGrid = createKanjiGrid(document.getElementById('kanji-grid'), {
@@ -108,7 +94,6 @@ const canvas = new DrawingCanvas(document.getElementById('drawing-canvas-wrap'),
 });
 
 const kanjiInfo = createKanjiInfoCard(document.getElementById('kanji-info-card'), {
-  onToggleWatermark: handleToggleWatermark,
   onPlayDemo: handlePlayDemo,
   onClearCanvas: () => {
     soundManager.playClick();
@@ -145,6 +130,7 @@ function handleToggleWatermark() {
   const next = !state.isWatermarkOn;
   state.isWatermarkOn = next;
   soundManager.playModeSwitch(next);
+  toast.show(next ? '🥈 なぞり書きモードにしたよ' : '🥇 チャレンジモードにしたよ');
   render();
 }
 
@@ -158,8 +144,10 @@ function handleToggleTestMode() {
     state.isWatermarkOn = false;
     state.isDemoPlaying = false;
     soundManager.playClick();
+    toast.show('🧪 テストモードを はじめるよ');
   } else {
     soundManager.speak('テストを終了します');
+    toast.show('テストモードを おわったよ');
   }
   render();
 }
@@ -263,7 +251,6 @@ function handleKanjiComplete(completedWithWatermark) {
       lastPracticed: Date.now(),
     },
   };
-  saveProgress(state.progressMap);
 
   // The per-stroke "GOOD!" popup was already suppressed for this final
   // stroke (see drawingCanvas.js), so the confetti celebration is the only
@@ -310,6 +297,7 @@ function render() {
     currentCategory: state.currentCategory,
     soundEnabled: state.soundEnabled,
     isTestMode: state.isTestMode,
+    isWatermarkOn: state.isWatermarkOn,
   });
 
   kanjiGrid.update({
@@ -322,7 +310,6 @@ function render() {
 
   kanjiInfo.update({
     kanji: currentKanji,
-    isWatermarkOn: state.isWatermarkOn,
     isDemoPlaying: state.isDemoPlaying,
     isTestMode: state.isTestMode,
   });

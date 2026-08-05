@@ -2,27 +2,29 @@ import { KANJI_CATEGORIES } from '../data.js';
 
 export function createHeader(container, callbacks) {
   container.innerHTML = `
-    <div class="header-title-group">
-      <div class="header-logo">漢</div>
-      <h1 class="header-title">
-        かん字マスター
-        <span class="header-badge">小２</span>
-      </h1>
+    <div class="header-row header-row--brand">
+      <div class="header-title-group">
+        <div class="header-logo">漢</div>
+        <h1 class="header-title">
+          かん字マスター
+          <span class="header-badge">小２</span>
+        </h1>
+      </div>
+
+      <div class="header-center">
+        <button type="button" class="btn-pill btn-pill--light" data-action="category">
+          <span class="cat-emoji"></span>
+          <span class="cat-name"></span>
+          <span class="btn-pill-tag">かえる</span>
+        </button>
+        <button type="button" class="btn-pill btn-pill--dark" data-action="all-kanji">
+          <span>📖</span>
+          <span>漢字いちらん</span>
+        </button>
+      </div>
     </div>
 
-    <div class="header-center">
-      <button type="button" class="btn-pill btn-pill--light" data-action="category">
-        <span class="cat-emoji"></span>
-        <span class="cat-name"></span>
-        <span class="btn-pill-tag">かえる</span>
-      </button>
-      <button type="button" class="btn-pill btn-pill--dark" data-action="all-kanji">
-        <span>📖</span>
-        <span>漢字いちらん</span>
-      </button>
-    </div>
-
-    <div class="header-right">
+    <div class="header-row header-row--tools">
       <div class="header-progress">
         <span class="header-progress-label">できた かず</span>
         <div class="header-progress-bar-row">
@@ -33,20 +35,27 @@ export function createHeader(container, callbacks) {
         </div>
       </div>
 
-      <div class="combo-badge">
-        <span class="combo-fire">🔥</span>
-        <div>
-          <span class="combo-number">0</span>
-          <span class="combo-label">コンボ！</span>
+      <div class="header-badges">
+        <div class="combo-badge">
+          <span class="combo-fire">🔥</span>
+          <div>
+            <span class="combo-number">0</span>
+            <span class="combo-label">コンボ！</span>
+          </div>
         </div>
+
+        <button type="button" class="watermark-mini-toggle" data-action="watermark" title="なぞり書き・チャレンジの きりかえ">
+          <span class="watermark-mini-toggle__emoji"></span>
+          <span class="watermark-mini-toggle__label"></span>
+        </button>
+
+        <button type="button" class="test-mode-toggle" data-action="test-mode" title="テストモードのオン・オフ（オフにするには2秒長押し）">
+          <span class="test-mode-toggle__icon">🧪</span>
+          <span class="test-mode-toggle__label">テスト</span>
+        </button>
+
+        <button type="button" class="sound-toggle" data-action="sound" title="音をオン・オフ"></button>
       </div>
-
-      <button type="button" class="test-mode-toggle" data-action="test-mode" title="テストモードのオン・オフ（オフにするには2秒長押し）">
-        <span class="test-mode-toggle__icon">🧪</span>
-        <span class="test-mode-toggle__label">テスト</span>
-      </button>
-
-      <button type="button" class="sound-toggle" data-action="sound" title="音をオン・オフ"></button>
     </div>
   `;
 
@@ -59,11 +68,15 @@ export function createHeader(container, callbacks) {
     soundToggle: container.querySelector('.sound-toggle'),
     testModeToggle: container.querySelector('.test-mode-toggle'),
     testModeLabel: container.querySelector('.test-mode-toggle__label'),
+    watermarkToggle: container.querySelector('.watermark-mini-toggle'),
+    watermarkEmoji: container.querySelector('.watermark-mini-toggle__emoji'),
+    watermarkLabel: container.querySelector('.watermark-mini-toggle__label'),
   };
 
   container.querySelector('[data-action="category"]').addEventListener('click', () => callbacks.onOpenCategoryModal());
   container.querySelector('[data-action="all-kanji"]').addEventListener('click', () => callbacks.onOpenAllKanjiModal());
   els.soundToggle.addEventListener('click', () => callbacks.onToggleSound());
+  els.watermarkToggle.addEventListener('click', () => callbacks.onToggleWatermark());
 
   // Turning test mode ON is a normal tap. Turning it back OFF requires a
   // ~2s press-and-hold, so a child can't escape a test with one stray tap.
@@ -108,6 +121,14 @@ export function createHeader(container, callbacks) {
 
     els.testModeToggle.classList.toggle('is-on', state.isTestMode);
     els.testModeLabel.textContent = state.isTestMode ? 'テストちゅう' : 'テスト';
+
+    // Hidden (not just disabled) during a test -- the test-mode badge
+    // already explains why, so there's nothing useful left for it to show.
+    els.watermarkToggle.disabled = state.isTestMode;
+    els.watermarkToggle.classList.toggle('hidden', state.isTestMode);
+    els.watermarkToggle.classList.toggle('on', state.isWatermarkOn);
+    els.watermarkEmoji.textContent = state.isWatermarkOn ? '🥈' : '🥇';
+    els.watermarkLabel.textContent = state.isWatermarkOn ? 'なぞり書き' : 'チャレンジ';
   }
 
   return { update };

@@ -27,17 +27,6 @@ export function createKanjiInfoCard(container, callbacks) {
         </button>
       </div>
 
-      <button type="button" class="watermark-toggle" data-action="watermark">
-        <div class="watermark-toggle__left">
-          <span class="watermark-toggle__emoji"></span>
-          <div>
-            <div class="watermark-toggle__label"></div>
-            <div class="watermark-toggle__grade"></div>
-          </div>
-        </div>
-        <span class="watermark-toggle__switch">きりかえ</span>
-      </button>
-
       <button type="button" class="btn-next" data-action="next">
         <span class="btn-next__text">次へ</span>
         <span class="btn-next__icon">👉</span>
@@ -52,16 +41,10 @@ export function createKanjiInfoCard(container, callbacks) {
     example: container.querySelector('.readings-card__example'),
     demoBtn: container.querySelector('[data-action="demo"]'),
     demoLabel: container.querySelector('.demo-label'),
-    watermarkBtn: container.querySelector('[data-action="watermark"]'),
-    watermarkEmoji: container.querySelector('.watermark-toggle__emoji'),
-    watermarkLabel: container.querySelector('.watermark-toggle__label'),
-    watermarkGrade: container.querySelector('.watermark-toggle__grade'),
-    watermarkSwitch: container.querySelector('.watermark-toggle__switch'),
   };
 
   els.demoBtn.addEventListener('click', () => callbacks.onPlayDemo());
   container.querySelector('[data-action="clear"]').addEventListener('click', () => callbacks.onClearCanvas());
-  els.watermarkBtn.addEventListener('click', () => callbacks.onToggleWatermark());
   container.querySelector('[data-action="next"]').addEventListener('click', () => callbacks.onNextKanji());
 
   function update(state) {
@@ -75,21 +58,6 @@ export function createKanjiInfoCard(container, callbacks) {
 
     els.demoBtn.disabled = state.isDemoPlaying || state.isTestMode;
     els.demoLabel.textContent = state.isDemoPlaying ? 'さいせい中' : 'みほん';
-
-    els.watermarkBtn.disabled = state.isTestMode;
-    els.watermarkBtn.classList.toggle('off', !state.isWatermarkOn);
-    els.watermarkBtn.classList.toggle('on', state.isWatermarkOn);
-    els.watermarkBtn.classList.toggle('is-locked', state.isTestMode);
-    els.watermarkSwitch.style.display = state.isTestMode ? 'none' : '';
-    if (state.isTestMode) {
-      els.watermarkEmoji.textContent = '🧪';
-      els.watermarkLabel.textContent = 'テストモード';
-      els.watermarkGrade.textContent = '見本もヒントも なし';
-    } else {
-      els.watermarkEmoji.textContent = state.isWatermarkOn ? '🥈' : '🥇';
-      els.watermarkLabel.textContent = state.isWatermarkOn ? 'なぞり書きモード' : 'チャレンジモード';
-      els.watermarkGrade.textContent = state.isWatermarkOn ? '透かしアリ (銀)' : '透かし無し (金)';
-    }
   }
 
   return { update };
