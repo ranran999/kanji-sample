@@ -70,13 +70,6 @@ export const KANJI_CATEGORIES = [
     gradient: 'linear-gradient(135deg, #a8e063, #56ab2f)',
   },
   {
-    id: 'matome1',
-    name: 'かん字の まとめ（1）',
-    emoji: '📝',
-    description: 'テストに でた かん字（1〜25ばん）',
-    gradient: 'linear-gradient(135deg, #f6d365, #fda085)',
-  },
-  {
     id: 'matome2',
     name: 'かん字の まとめ（2）',
     emoji: '📝',
@@ -1411,8 +1404,8 @@ export const KANJI_DATA = [
     category: 'g1review',
     grade: 1,
     strokeCount: 5,
-    readings: { onyomi: ['ホン'], kunyomi: ['もと'] },
-    meaning: 'ほん・もと',
+    readings: { onyomi: ['ホン'], kunyomi: [] },
+    meaning: 'ほん',
     examples: [
       { word: '本（ほん）', reading: 'ほん', sentence: '本を よむ。' },
       { word: '五本（ごほん）', reading: 'ごほん', sentence: '五本の えんぴつ。' }
@@ -1605,7 +1598,7 @@ export const KANJI_DATA = [
     readings: { onyomi: ['ゲツ', 'ガツ'], kunyomi: ['つき'] },
     meaning: 'つき',
     examples: [
-      { word: '月（つき）', reading: 'つき', sentence: 'まん月の よる。' }
+      { word: '月（つき）', reading: 'つき', sentence: '空に 月が 出る。' }
     ],
     strokes: [
       { strokeNumber: 1, type: 'hook', start: { x: 31.4, y: 14.9 }, end: { x: 22.7, y: 85.8 }, svgPath: 'M 31.42 14.91 c 0.92 0.92, 1.36 2.18, 1.38 3.67 c 0.35 30.84, 2.18 54.48, -10.09 67.2', hintText: 'ひだりで よこから したへ まがる' },
@@ -1657,7 +1650,7 @@ export const KANJI_DATA = [
     category: 'g1review',
     grade: 1,
     strokeCount: 2,
-    readings: { onyomi: ['ハチ'], kunyomi: ['や（つ）', 'やっ（つ）'] },
+    readings: { onyomi: ['ハチ'], kunyomi: ['やっ（つ）', 'や'] },
     meaning: 'かずの はち',
     examples: [
       { word: '八つ（やっつ）', reading: 'やっつ', sentence: '八つ かぞえる。' }
@@ -1865,7 +1858,7 @@ export const KANJI_DATA = [
     readings: { onyomi: ['トウ'], kunyomi: ['かたな'] },
     meaning: 'かたな',
     examples: [
-      { word: '刀（かたな）', reading: 'かたな', sentence: '小刀を つかう。' }
+      { word: '刀（かたな）', reading: 'かたな', sentence: '刀を つかう。' }
     ],
     strokes: [
       { strokeNumber: 1, type: 'hook', start: { x: 21.4, y: 25.3 }, end: { x: 54.6, y: 77 }, svgPath: 'M 21.41 25.28 c 2.01 0.7, 4.54 0.57, 6.3 0.38 c 14.48 -1.58, 38.09 -5.45, 46.05 -6.17 c 5.17 -0.47, 7.48 2.54, 7.18 5.79 c -0.76 8.58, -7.32 41.65, -14.38 51.51 C 61.47 83.94, 58.49 81.65, 54.62 77.01', hintText: 'まんなかで よこから したへ まがる' },
@@ -1964,7 +1957,7 @@ export const KANJI_DATA = [
     readings: { onyomi: ['キ', 'ケ'], kunyomi: [] },
     meaning: 'きもち・げんき',
     examples: [
-      { word: '元気（げんき）', reading: 'げんき', sentence: '元気に あいさつする。' }
+      { word: '気（き）', reading: 'き', sentence: '気を つける。' }
     ],
     strokes: [
       { strokeNumber: 1, type: 'left-sweep', start: { x: 34.6, y: 8.5 }, end: { x: 22, y: 26.6 }, svgPath: 'M 34.63 8.49 c 0.23 1.49, -0.23 2.52, -0.92 3.9 C 32.69 14.44, 25.69 23.17, 22.02 26.61', hintText: 'ひだりの ひだりはらい' },
@@ -2068,7 +2061,7 @@ export const KANJI_DATA = [
     category: 'aprilmay',
     grade: 2,
     strokeCount: 12,
-    readings: { onyomi: ['カイ', 'エ'], kunyomi: [] },
+    readings: { onyomi: ['エ', 'カイ'], kunyomi: [] },
     meaning: 'え',
     examples: [
       { word: '絵（え）', reading: 'え', sentence: '絵を かく。' }
@@ -2236,7 +2229,7 @@ export const KANJI_DATA = [
     readings: { onyomi: ['キ'], kunyomi: [] },
     meaning: 'かきしるすこと',
     examples: [
-      { word: '日記（にっき）', reading: 'にっき', sentence: '日記を つける。' }
+      { word: '記号（きごう）', reading: 'きごう', sentence: '記号を かく。' }
     ],
     strokes: [
       { strokeNumber: 1, type: 'dot', start: { x: 23.4, y: 13.1 }, end: { x: 31.2, y: 21.3 }, svgPath: 'M 23.39 13.07 c 2.75 1.46, 7.11 5.99, 7.8 8.26', hintText: 'ひだりの てん' },
@@ -2258,9 +2251,9 @@ export const KANJI_DATA = [
     grade: 1,
     strokeCount: 8,
     readings: { onyomi: ['キン', 'コン'], kunyomi: ['かね'] },
-    meaning: 'きんいろ・おかね',
+    meaning: 'おかね・きんいろ',
     examples: [
-      { word: '金（かね）', reading: 'かね', sentence: '金いろに ひかる。' },
+      { word: 'お金（おかね）', reading: 'おかね', sentence: 'お金を つかう。' },
       { word: '金曜日（きんようび）', reading: 'きんようび', sentence: '金曜日の あさ。' }
     ],
     strokes: [
@@ -2597,7 +2590,7 @@ export const KANJI_DATA = [
     category: 'matome3',
     grade: 2,
     strokeCount: 6,
-    readings: { onyomi: ['ウ'], kunyomi: ['は（ね）', 'はね'] },
+    readings: { onyomi: ['ウ'], kunyomi: ['はね'] },
     meaning: 'はね',
     examples: [
       { word: '羽（はね）', reading: 'はね', sentence: 'とんぼの 羽。' }
@@ -2659,8 +2652,8 @@ export const KANJI_DATA = [
     category: 'matome3',
     grade: 2,
     strokeCount: 13,
-    readings: { onyomi: ['エン'], kunyomi: ['その'] },
-    meaning: 'その・にわ',
+    readings: { onyomi: ['エン'], kunyomi: [] },
+    meaning: 'にわ',
     examples: [
       { word: '公園（こうえん）', reading: 'こうえん', sentence: '公園へ いく。' }
     ],
@@ -2817,7 +2810,7 @@ export const KANJI_DATA = [
   {
     id: 'hi_ka',
     character: '火',
-    category: 'matome1',
+    category: 'aprilmay',
     grade: 1,
     strokeCount: 4,
     readings: { onyomi: ['カ'], kunyomi: ['ひ'] },

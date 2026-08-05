@@ -1,4 +1,4 @@
-import { maskAnswerInText } from '../kanjiText.js';
+import { maskAnswerInText, maskAnswerInHtml } from '../kanjiText.js';
 
 export function createKanjiInfoCard(container, callbacks) {
   container.innerHTML = `
@@ -52,8 +52,8 @@ export function createKanjiInfoCard(container, callbacks) {
     els.onyomi.textContent = kanji.readings.onyomi.length > 0 ? kanji.readings.onyomi.join(' ・ ') : 'なし';
     els.kunyomi.textContent = kanji.readings.kunyomi.length > 0 ? kanji.readings.kunyomi.join(' ・ ') : 'なし';
     els.meaning.textContent = maskAnswerInText(kanji.meaning, kanji);
-    els.example.textContent =
-      kanji.examples.length > 0 ? `「${maskAnswerInText(kanji.examples[0].sentence, kanji)}」` : '';
+    els.example.innerHTML =
+      kanji.examples.length > 0 ? `「${maskAnswerInHtml(kanji.examples[0].sentence, kanji)}」` : '';
     els.example.style.display = kanji.examples.length > 0 ? '' : 'none';
 
     els.demoBtn.disabled = state.isDemoPlaying || state.isTestMode;

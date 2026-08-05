@@ -26,3 +26,19 @@ export function maskAnswerInText(text, item) {
   const label = getHiddenAnswerLabel(item);
   return text.split(item.character).join(label);
 }
+
+function escapeHtml(str) {
+  return str.replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+}
+
+// Same substitution as maskAnswerInText, but returns HTML with the
+// substituted reading wrapped in a <mark> so a child can see exactly which
+// hiragana stands in for the kanji they're practicing.
+export function maskAnswerInHtml(text, item) {
+  if (!text) return text;
+  const label = getHiddenAnswerLabel(item);
+  return text
+    .split(item.character)
+    .map(escapeHtml)
+    .join(`<mark class="masked-reading">${escapeHtml(label)}</mark>`);
+}
