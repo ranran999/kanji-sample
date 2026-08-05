@@ -460,7 +460,7 @@ canvas {
 @media (min-width: 1024px) {
   .kanji-grid {
     grid-template-columns: repeat(2, 1fr);
-    max-height: none;
+    max-height: 560px;
   }
 }
 
@@ -596,8 +596,10 @@ canvas {
      a wide-but-short viewport (e.g. iPad landscape) stretches this box to
      the row's cross-axis height, fighting aspect-ratio and leaving it
      non-square. That desyncs the demo/hint overlay positions (laid out as
-     percentages of this box) from the canvas drawing surface. */
-  align-self: center;
+     percentages of this box) from the canvas drawing surface. flex-start
+     (not center) keeps it flush with the top of the side panels even when
+     a long kanji list makes the row taller than the canvas itself. */
+  align-self: flex-start;
   width: 100%;
   max-width: 560px;
   aspect-ratio: 1 / 1;
