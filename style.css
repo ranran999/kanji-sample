@@ -111,15 +111,25 @@ canvas {
   min-height: 80px;
   background: var(--orange);
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  flex-direction: column;
+  gap: 10px;
   padding: 10px clamp(12px, 3vw, 32px);
   padding-top: max(10px, env(safe-area-inset-top));
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
   position: relative;
   z-index: 10;
+}
+
+/* Two explicit rows (brand+category on top, progress/badges below) instead
+   of relying on an unpredictable flex-wrap -- keeps mid-width tablets like
+   iPad mini from splitting badges awkwardly across lines. */
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   flex-wrap: wrap;
+  row-gap: 8px;
 }
 
 .header-title-group {
@@ -219,16 +229,19 @@ canvas {
   background: var(--navy-light);
 }
 
-.header-right {
+.header-badges {
   display: flex;
   align-items: center;
-  gap: clamp(10px, 2vw, 28px);
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: clamp(8px, 1.5vw, 16px);
+  margin-left: auto;
 }
 
 .header-progress {
   display: none;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: flex-start;
 }
 
 @media (min-width: 640px) {
@@ -359,6 +372,51 @@ canvas {
 
 .test-mode-toggle__icon {
   font-size: 16px;
+}
+
+.watermark-mini-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 12px;
+  background: var(--amber-100);
+  color: var(--amber-900);
+  font-size: 12px;
+  font-weight: 900;
+  box-shadow: 0 2px 0 var(--amber-500);
+  flex-shrink: 0;
+  transition: transform 0.1s, background 0.15s, color 0.15s, box-shadow 0.15s;
+}
+
+.watermark-mini-toggle:active {
+  transform: translateY(1px);
+}
+
+.watermark-mini-toggle.on {
+  background: var(--slate-600);
+  color: #fff;
+  box-shadow: 0 2px 0 var(--slate-800);
+}
+
+.watermark-mini-toggle__emoji {
+  font-size: 16px;
+}
+
+/* On the narrowest phones, four header badges plus the sound icon don't
+   all fit with full labels -- drop to icon-only pills (color still shows
+   which mode is active) so everything stays on one line. */
+@media (max-width: 420px) {
+  .test-mode-toggle,
+  .watermark-mini-toggle {
+    padding: 0 10px;
+  }
+
+  .test-mode-toggle__label,
+  .watermark-mini-toggle__label {
+    display: none;
+  }
 }
 
 /* ==========================================================================
@@ -949,70 +1007,6 @@ canvas {
 
 .btn-3d__icon {
   font-size: 22px;
-}
-
-.watermark-toggle {
-  width: 100%;
-  padding: 12px 14px;
-  border-radius: 22px;
-  border: 3px solid transparent;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  transition: all 0.15s;
-}
-
-.watermark-toggle.off {
-  background: var(--amber-100);
-  border-color: var(--amber-500);
-  color: var(--amber-900);
-  box-shadow: 0 4px 0 var(--amber-600);
-}
-
-.watermark-toggle.on {
-  background: var(--slate-100);
-  border-color: var(--slate-400);
-  color: var(--text-main);
-}
-
-.watermark-toggle.is-locked {
-  background: var(--slate-50);
-  border-color: var(--slate-300);
-  color: var(--slate-600);
-  cursor: default;
-}
-
-.watermark-toggle__left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  text-align: left;
-}
-
-.watermark-toggle__emoji {
-  font-size: 20px;
-}
-
-.watermark-toggle__label {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--gray-400);
-  line-height: 1.2;
-}
-
-.watermark-toggle__grade {
-  font-size: 13px;
-  font-weight: 900;
-  line-height: 1.3;
-}
-
-.watermark-toggle__switch {
-  font-size: 11px;
-  background: #fff;
-  padding: 4px 8px;
-  border-radius: 8px;
-  font-weight: 700;
-  border: 1px solid var(--gray-300);
 }
 
 .btn-next {

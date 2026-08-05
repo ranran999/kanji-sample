@@ -87,6 +87,7 @@ const header = createHeader(document.getElementById('app-header'), {
     render();
   },
   onToggleTestMode: handleToggleTestMode,
+  onToggleWatermark: handleToggleWatermark,
 });
 
 const kanjiGrid = createKanjiGrid(document.getElementById('kanji-grid'), {
@@ -108,7 +109,6 @@ const canvas = new DrawingCanvas(document.getElementById('drawing-canvas-wrap'),
 });
 
 const kanjiInfo = createKanjiInfoCard(document.getElementById('kanji-info-card'), {
-  onToggleWatermark: handleToggleWatermark,
   onPlayDemo: handlePlayDemo,
   onClearCanvas: () => {
     soundManager.playClick();
@@ -310,6 +310,7 @@ function render() {
     currentCategory: state.currentCategory,
     soundEnabled: state.soundEnabled,
     isTestMode: state.isTestMode,
+    isWatermarkOn: state.isWatermarkOn,
   });
 
   kanjiGrid.update({
@@ -322,7 +323,6 @@ function render() {
 
   kanjiInfo.update({
     kanji: currentKanji,
-    isWatermarkOn: state.isWatermarkOn,
     isDemoPlaying: state.isDemoPlaying,
     isTestMode: state.isTestMode,
   });
