@@ -30,6 +30,7 @@ export class DrawingCanvas {
     this.isWatermarkOn = false;
     this.isDemoPlaying = false;
     this.isTestMode = false;
+    this.isPenMode = false;
 
     this.currentStrokeIndex = 0;
     this.completedStrokes = [];
@@ -144,6 +145,13 @@ export class DrawingCanvas {
     this.watermarkEl.classList.toggle('is-on', isOn);
   }
 
+  // Pen mode: only a real stylus (pointerType 'pen') can draw -- a resting
+  // palm or finger on the canvas is ignored instead of leaving stray marks
+  // or hijacking an in-progress stroke.
+  setPenMode(isOn) {
+    this.isPenMode = isOn;
+  }
+
   // Test mode: no watermark tracing, no early stroke-number hint -- the
   // child has to recall the kanji unaided, like a real test.
   setTestMode(isOn) {
@@ -230,7 +238,17 @@ export class DrawingCanvas {
     if (this.isDemoPlaying || !this.kanji || this.currentStrokeIndex >= this.kanji.strokes.length) {
       return;
     }
-    this.canvasEl.setPointerCapture(e.pointerId);
+    // A second contact (e.g. a resting palm) must never interrupt a stroke
+    // already in progress, and in pen mode only a real stylus may draw at
+    // all -- any other pointer (finger, palm) is ignored outright.
+    if (this.isDrawing) return;
+    if (this.isPenMode && e.pointerType !== 'pen') return;
+    try {
+      this.canvasEl.setPointerCapture(e.pointerId);
+    } catch {
+      // ignore -- some platforms reject capture for a pointerId they don't
+      // consider "active" yet; drawing still works fine without capture.
+    }
     this.activePointerId = e.pointerId;
     const rect = this.canvasEl.getBoundingClientRect();
     const pt = normalizePoint({ x: e.clientX - rect.left, y: e.clientY - rect.top }, rect.width, rect.height);

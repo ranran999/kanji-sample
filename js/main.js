@@ -24,6 +24,7 @@ const state = {
   currentKanjiId: initialKanji ? initialKanji.id : 'umi',
   isWatermarkOn: false,
   isTestMode: false,
+  isPenModeOn: false,
   isDemoPlaying: false,
   clearTrigger: 0,
   combo: 0,
@@ -73,6 +74,8 @@ const header = createHeader(document.getElementById('app-header'), {
   },
   onToggleTestMode: handleToggleTestMode,
   onToggleWatermark: handleToggleWatermark,
+  onTogglePenMode: handleTogglePenMode,
+  onPenModeRejected: handlePenModeRejected,
 });
 
 const kanjiGrid = createKanjiGrid(document.getElementById('kanji-grid'), {
@@ -150,6 +153,22 @@ function handleToggleTestMode() {
     toast.show('テストモードを おわったよ');
   }
   render();
+}
+
+// ペンモード: only a real stylus (pointerType 'pen') can draw, so a resting
+// palm or finger no longer leaves stray marks or hijacks the active stroke.
+function handleTogglePenMode() {
+  soundManager.playClick();
+  state.isPenModeOn = !state.isPenModeOn;
+  toast.show(state.isPenModeOn ? '🖊️ ペンモードにしたよ' : 'ペンモードを おわったよ');
+  render();
+}
+
+// Someone tried to turn pen mode ON without a real stylus (finger/mouse) --
+// explain why instead of silently doing nothing.
+function handlePenModeRejected() {
+  soundManager.playWrongStroke();
+  toast.show('ペンモードは iPadの Apple Pencilだけ つかえるよ');
 }
 
 function handleSelectKanji(kanjiId) {
@@ -298,6 +317,7 @@ function render() {
     soundEnabled: state.soundEnabled,
     isTestMode: state.isTestMode,
     isWatermarkOn: state.isWatermarkOn,
+    isPenModeOn: state.isPenModeOn,
   });
 
   kanjiGrid.update({
@@ -339,6 +359,7 @@ function render() {
   }
   canvas.setWatermark(state.isWatermarkOn);
   canvas.setTestMode(state.isTestMode);
+  canvas.setPenMode(state.isPenModeOn);
   canvas.setDemoPlaying(state.isDemoPlaying);
 }
 
