@@ -75,6 +75,7 @@ const header = createHeader(document.getElementById('app-header'), {
   onToggleTestMode: handleToggleTestMode,
   onToggleWatermark: handleToggleWatermark,
   onTogglePenMode: handleTogglePenMode,
+  onPenModeRejected: handlePenModeRejected,
 });
 
 const kanjiGrid = createKanjiGrid(document.getElementById('kanji-grid'), {
@@ -161,6 +162,13 @@ function handleTogglePenMode() {
   state.isPenModeOn = !state.isPenModeOn;
   toast.show(state.isPenModeOn ? '🖊️ ペンモードにしたよ' : 'ペンモードを おわったよ');
   render();
+}
+
+// Someone tried to turn pen mode ON without a real stylus (finger/mouse) --
+// explain why instead of silently doing nothing.
+function handlePenModeRejected() {
+  soundManager.playWrongStroke();
+  toast.show('ペンモードは iPadの Apple Pencilだけ つかえるよ');
 }
 
 function handleSelectKanji(kanjiId) {
