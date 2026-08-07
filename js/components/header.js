@@ -54,6 +54,8 @@ export function createHeader(container, callbacks) {
           <span class="test-mode-toggle__label">テスト</span>
         </button>
 
+        <button type="button" class="pen-mode-toggle" data-action="pen-mode" title="ペンモード（オンにするとタッチペンだけで書けます）">🖊️</button>
+
         <button type="button" class="sound-toggle" data-action="sound" title="音をオン・オフ"></button>
       </div>
     </div>
@@ -71,12 +73,14 @@ export function createHeader(container, callbacks) {
     watermarkToggle: container.querySelector('.watermark-mini-toggle'),
     watermarkEmoji: container.querySelector('.watermark-mini-toggle__emoji'),
     watermarkLabel: container.querySelector('.watermark-mini-toggle__label'),
+    penModeToggle: container.querySelector('.pen-mode-toggle'),
   };
 
   container.querySelector('[data-action="category"]').addEventListener('click', () => callbacks.onOpenCategoryModal());
   container.querySelector('[data-action="all-kanji"]').addEventListener('click', () => callbacks.onOpenAllKanjiModal());
   els.soundToggle.addEventListener('click', () => callbacks.onToggleSound());
   els.watermarkToggle.addEventListener('click', () => callbacks.onToggleWatermark());
+  els.penModeToggle.addEventListener('click', () => callbacks.onTogglePenMode());
 
   // Turning test mode ON is a normal tap. Turning it back OFF requires a
   // ~2s press-and-hold, so a child can't escape a test with one stray tap.
@@ -129,6 +133,11 @@ export function createHeader(container, callbacks) {
     els.watermarkToggle.classList.toggle('on', state.isWatermarkOn);
     els.watermarkEmoji.textContent = state.isWatermarkOn ? '🥈' : '🥇';
     els.watermarkLabel.textContent = state.isWatermarkOn ? 'なぞり書き' : 'チャレンジ';
+
+    els.penModeToggle.classList.toggle('is-on', state.isPenModeOn);
+    els.penModeToggle.title = state.isPenModeOn
+      ? 'ペンモード：オン（タッチペンだけで書けます）'
+      : 'ペンモード（オンにするとタッチペンだけで書けます）';
   }
 
   return { update };
