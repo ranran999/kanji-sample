@@ -16,6 +16,7 @@
 // docs/adding-a-kanji-theme.md for the full workflow this fits into.
 
 import fs from 'fs';
+import { fileURLToPath } from 'url';
 import { scalePath } from './pathScale.mjs';
 import { launchBrowser } from '../../tests/helpers/browser.mjs';
 
@@ -26,7 +27,7 @@ const SCALE = 100 / 109;
 // tunable "quality" knob.
 const VERIFY_TOLERANCE = 1.5;
 
-function toCodepoint(ch) {
+export function toCodepoint(ch) {
   return ch.codePointAt(0).toString(16).padStart(5, '0');
 }
 
@@ -97,7 +98,10 @@ async function fetchSvg(codepoint) {
   return res.text();
 }
 
-async function processCharacter(page, ch) {
+// Fetches + rescales + classifies KanjiVG stroke data for one character.
+// Exported so other tools (e.g. add-kanji.mjs) can reuse this pipeline
+// without re-fetching or duplicating the classification logic.
+export async function processCharacter(page, ch) {
   const codepoint = toCodepoint(ch);
   const svgText = await fetchSvg(codepoint);
 
@@ -220,4 +224,9 @@ async function main() {
   }
 }
 
-main();
+// Only run the CLI when this file is executed directly -- other tools (e.g.
+// add-kanji.mjs) import `processCharacter` from here without wanting this
+// module's own argv parsing and main() to run too.
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  main();
+}
