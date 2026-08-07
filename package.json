@@ -1,12 +1,15 @@
 {
-  "name": "kanji-master-grade2",
+  "name": "kanji-sample",
   "private": true,
   "version": "1.0.0",
-  "description": "小学2年生向け 漢字の書き順練習アプリ（ビルド不要のプレーンHTML/CSS/JS、Cloudflare Pages想定）",
+  "description": "小学2年生向け 漢字の書き順練習アプリ（ビルド不要のプレーンHTML/CSS/JS、Cloudflare Workersでホスティング）",
   "license": "MIT",
   "type": "module",
   "scripts": {
     "dev": "npx --yes serve . -l 3000",
-    "deploy": "npx --yes wrangler pages deploy . --project-name=kanji-master-grade2"
+    "test": "node tests/run-all.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.56.1"
   }
 }
