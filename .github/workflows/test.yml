@@ -5,6 +5,12 @@ on:
   push:
     branches: [main]
 
+# Least-privilege default: this workflow only reads the repo and runs
+# tests, so the GITHUB_TOKEN it's handed needs no write access at all --
+# matters more once the repo (and its PRs-from-forks) are public.
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
