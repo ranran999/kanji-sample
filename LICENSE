@@ -20,19 +20,37 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
+The MIT license above covers this project's application code (HTML/CSS/JS,
+UI, app logic) and the original written content in public/js/data.js (each
+kanji's character/category/grade/readings/meaning/examples, and the
+Japanese stroke-hint text). It does NOT cover the stroke geometry described
+below.
+
 ---
 
-Third-party data: kanji stroke order
--------------------------------------
+Kanji stroke geometry: CC BY-SA 3.0
+------------------------------------
 
-The kanji stroke order data in js/data.js (each stroke's start/end points
-and path) was authored and verified against KanjiVG
+The `type`, `start`, `end`, and `svgPath` fields of each entry in the
+`strokes` array inside public/js/data.js are stroke geometry -- rescaled
+and reclassified, not independently drawn -- derived from KanjiVG
 (https://github.com/KanjiVG/kanjivg), Copyright (C) 2009-2011 Ulrich Apel,
-licensed under the Creative Commons Attribution-Share Alike 3.0 license
-(https://creativecommons.org/licenses/by-sa/3.0/).
+licensed under the Creative Commons Attribution-ShareAlike 3.0 Unported
+license (CC BY-SA 3.0, https://creativecommons.org/licenses/by-sa/3.0/).
 
-If you reuse or adapt that stroke data, you must credit KanjiVG and license
-your adaptation under the same or a compatible license, per the terms of
-CC BY-SA 3.0. This requirement applies only to the stroke order data itself,
-not to the rest of this project's code, which is available under the MIT
-license above.
+CC BY-SA 3.0's ShareAlike clause (Section 4(b)) requires that an adaptation
+of the licensed material itself be distributed under CC BY-SA 3.0 (or a
+later version of this license, or another CC-compatible license). In
+compliance with that requirement -- not merely as a notice to downstream
+users -- this project licenses that stroke geometry data as follows:
+
+  The `type`/`start`/`end`/`svgPath` stroke geometry fields in
+  public/js/data.js are themselves licensed under CC BY-SA 3.0
+  (https://creativecommons.org/licenses/by-sa/3.0/), with attribution to
+  KanjiVG (https://github.com/KanjiVG/kanjivg) and Ulrich Apel.
+
+If you extract and reuse that geometry data, alone or combined with new
+work, your result must likewise credit KanjiVG and be released under
+CC BY-SA 3.0 or a CC-compatible license. This requirement applies only to
+that geometry data -- the rest of this repository remains available under
+the MIT license above.

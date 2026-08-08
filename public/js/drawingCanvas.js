@@ -445,6 +445,10 @@ export class DrawingCanvas {
 
     if (isComplete) {
       this.bannerTextEl.textContent = '🎉 完成！！';
+    } else if (this.isTestMode) {
+      // Test mode must not reveal the stroke number/total or the hint
+      // sentence -- both count as answer-adjacent help.
+      this.bannerTextEl.textContent = 'じぶんの ちからで かいてみよう！';
     } else {
       const hint = currentStroke?.hintText || 'ていねいに書こう！';
       this.bannerTextEl.textContent = `書き順 ${this.currentStrokeIndex + 1} / ${total}画: ${hint}`;

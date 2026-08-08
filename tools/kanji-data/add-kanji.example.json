@@ -1,0 +1,24 @@
+{
+  "newCategories": [
+    {
+      "id": "lake",
+      "name": "みずうみの かん字",
+      "emoji": "🏞️",
+      "description": "みずうみに かんけいする かん字",
+      "gradient": "linear-gradient(135deg, #38bdf8, #0ea5e9)"
+    }
+  ],
+  "kanji": [
+    {
+      "character": "湖",
+      "id": "mizuumi",
+      "category": "lake",
+      "grade": 2,
+      "readings": { "onyomi": ["コ"], "kunyomi": ["みずうみ"] },
+      "meaning": "みずうみ",
+      "examples": [
+        { "word": "湖（みずうみ）", "reading": "みずうみ", "sentence": "山の中に 湖が ある。" }
+      ]
+    }
+  ]
+}
