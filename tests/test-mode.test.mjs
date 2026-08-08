@@ -43,6 +43,12 @@ async function main() {
   const footerStatus = await page.textContent('.footer-status__text');
   assert(footerStatus.includes('テストモード'), 'footer status reflects test mode: ' + footerStatus);
 
+  // The banner under the canvas must not reveal the stroke number/total or
+  // the hint sentence in test mode -- both are answer-adjacent help.
+  const bannerText = await page.textContent('.dc-banner__text');
+  assert(!bannerText.includes('書き順'), 'banner does not show 書き順 label in test mode: got ' + bannerText);
+  assert(!/\d+\s*\/\s*\d+画/.test(bannerText), 'banner does not show stroke count (N/M画) in test mode: got ' + bannerText);
+
   // Draw an intentionally wrong stroke -- watermark should NOT auto-enable.
   const box = await page.locator('.dc-canvas').boundingBox();
   const toPx = (nx, ny) => ({ x: box.x + (nx / 100) * box.width, y: box.y + (ny / 100) * box.height });
