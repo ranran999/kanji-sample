@@ -2,7 +2,7 @@
 // paths from KanjiVG's 109x109 viewBox into this app's 0-100 coordinate
 // space, classifies each stroke's shape, and generates a Japanese hint
 // sentence -- producing a `strokes: [...]` array in the exact shape
-// js/data.js expects for each kanji entry.
+// public/js/data.js expects for each kanji entry.
 //
 // Usage:
 //   node tools/kanji-data/generate-stroke-data.mjs 火 水 木 --out strokes.json
@@ -12,7 +12,7 @@
 // `npx playwright install --with-deps chromium` first if you haven't).
 //
 // The output is a JSON object keyed by character. Each value's `strokes`
-// array can be pasted directly into a new kanji entry in js/data.js -- see
+// array can be pasted directly into a new kanji entry in public/js/data.js -- see
 // docs/adding-a-kanji-theme.md for the full workflow this fits into.
 
 import fs from 'fs';

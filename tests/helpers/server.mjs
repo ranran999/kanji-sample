@@ -4,7 +4,7 @@ import { stat } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const ROOT = path.resolve(fileURLToPath(new URL('.', import.meta.url)), '..', '..');
+const ROOT = path.resolve(fileURLToPath(new URL('.', import.meta.url)), '..', '..', 'public');
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',

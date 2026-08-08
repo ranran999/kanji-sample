@@ -1,8 +1,10 @@
-// The strokeCount, start/end points, and svgPath for each stroke below were
-// authored and verified against KanjiVG (https://github.com/KanjiVG/kanjivg),
-// Copyright (C) 2009-2011 Ulrich Apel, used under the Creative Commons
-// Attribution-Share Alike 3.0 license (https://creativecommons.org/licenses/by-sa/3.0/).
-// See LICENSE for details.
+// The type/start/end/svgPath fields of each stroke below are geometry
+// derived from KanjiVG (https://github.com/KanjiVG/kanjivg), Copyright (C)
+// 2009-2011 Ulrich Apel. Per KanjiVG's Creative Commons Attribution-
+// ShareAlike 3.0 license, this derived geometry is itself licensed under
+// CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0/) -- this
+// is narrower than the rest of this file/project, which is MIT. See
+// LICENSE for the exact scope and attribution requirements.
 
 // カテゴリー情報（小学生が直感で選べるテーマ）
 export const KANJI_CATEGORIES = [

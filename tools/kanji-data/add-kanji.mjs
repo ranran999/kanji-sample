@@ -1,4 +1,4 @@
-// Adds new kanji to js/data.js from plain text input (character, category,
+// Adds new kanji to public/js/data.js from plain text input (character, category,
 // readings, meaning, example sentences) -- no worksheet photo needed. This
 // covers the case where you already know exactly which kanji you want to
 // add (e.g. from a textbook table of contents, or just typing them in)
@@ -8,7 +8,7 @@
 // The KanjiVG stroke data (shape, start/end points, hint text) is still
 // generated automatically, same as generate-stroke-data.mjs. What this tool
 // adds on top is: validating the example sentences against this app's
-// answer-masking logic (js/kanjiText.js) *before* merging, so the class of
+// answer-masking logic (public/js/kanjiText.js) *before* merging, so the class of
 // bugs found during the original worksheet-photo import (a reading that
 // doesn't match the masked sentence, an example sentence missing the kanji
 // entirely, etc.) gets caught here instead of after publishing.
@@ -16,10 +16,10 @@
 // Usage:
 //   node tools/kanji-data/add-kanji.mjs --input new-kanji.json
 //     Dry run: fetches KanjiVG data, validates, and prints the ready-to-review
-//     js/data.js snippet -- does not touch any files.
+//     public/js/data.js snippet -- does not touch any files.
 //
 //   node tools/kanji-data/add-kanji.mjs --input new-kanji.json --write
-//     Same, but also inserts the validated entries directly into js/data.js.
+//     Same, but also inserts the validated entries directly into public/js/data.js.
 //
 // Input JSON shape (see tools/kanji-data/add-kanji.example.json):
 //   {
@@ -47,11 +47,11 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { processCharacter, toCodepoint } from './generate-stroke-data.mjs';
 import { launchBrowser } from '../../tests/helpers/browser.mjs';
-import { getHiddenAnswerLabel } from '../../js/kanjiText.js';
-import { KANJI_DATA, KANJI_CATEGORIES } from '../../js/data.js';
+import { getHiddenAnswerLabel } from '../../public/js/kanjiText.js';
+import { KANJI_DATA, KANJI_CATEGORIES } from '../../public/js/data.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DATA_JS_PATH = path.join(__dirname, '..', '..', 'js', 'data.js');
+const DATA_JS_PATH = path.join(__dirname, '..', '..', 'public', 'js', 'data.js');
 
 function q(str) {
   return "'" + String(str).replace(/\\/g, '\\\\').replace(/'/g, "\\'") + "'";
@@ -66,7 +66,7 @@ function validateEntry(entry, existingCharacters, categoryIds, seenCharacters) {
     return { problems, warnings };
   }
   if (existingCharacters.has(entry.character)) {
-    problems.push(`${entry.character} is already in js/data.js -- pass --force to add anyway (will create a duplicate)`);
+    problems.push(`${entry.character} is already in public/js/data.js -- pass --force to add anyway (will create a duplicate)`);
   }
   if (seenCharacters.has(entry.character)) {
     problems.push(`${entry.character} appears more than once in this input file`);
@@ -161,7 +161,7 @@ function writeIntoDataJs(newCategories, newEntries) {
   if (newCategories.length > 0) {
     const anchor = '];\n\n// 小学2年生の漢字全160字の包括的学習データベース';
     if (!src.includes(anchor)) {
-      throw new Error('Could not find the KANJI_CATEGORIES closing anchor in js/data.js -- file structure may have changed, edit manually instead.');
+      throw new Error('Could not find the KANJI_CATEGORIES closing anchor in public/js/data.js -- file structure may have changed, edit manually instead.');
     }
     const block = newCategories.map(formatCategoryEntry).join('\n') + '\n';
     src = src.replace(anchor, block + anchor);
@@ -169,7 +169,7 @@ function writeIntoDataJs(newCategories, newEntries) {
 
   const dataAnchor = '];\n\n// 2年生の全160字リスト';
   if (!src.includes(dataAnchor)) {
-    throw new Error('Could not find the KANJI_DATA closing anchor in js/data.js -- file structure may have changed, edit manually instead.');
+    throw new Error('Could not find the KANJI_DATA closing anchor in public/js/data.js -- file structure may have changed, edit manually instead.');
   }
   const entryBlock = newEntries.map(formatKanjiEntry).join('\n') + '\n';
   src = src.replace(dataAnchor, entryBlock + dataAnchor);
@@ -212,7 +212,7 @@ async function main() {
     for (const w of warnings) console.log(`  ⚠ ${w}`);
     for (const p of problems) console.log(`  ✗ ${p}`);
 
-    const blocking = problems.filter((p) => !(force && p.startsWith(`${entry.character} is already in js/data.js`)));
+    const blocking = problems.filter((p) => !(force && p.startsWith(`${entry.character} is already in public/js/data.js`)));
     if (blocking.length > 0) {
       hasBlockingProblems = true;
       continue;
@@ -270,10 +270,10 @@ async function main() {
 
   if (write) {
     writeIntoDataJs(newCategories, finalEntries);
-    console.log(`\nWrote ${finalEntries.length} kanji${newCategories.length ? ` and ${newCategories.length} new categor${newCategories.length === 1 ? 'y' : 'ies'}` : ''} into js/data.js.`);
+    console.log(`\nWrote ${finalEntries.length} kanji${newCategories.length ? ` and ${newCategories.length} new categor${newCategories.length === 1 ? 'y' : 'ies'}` : ''} into public/js/data.js.`);
     console.log('Run `npm test` to verify before committing.');
   } else {
-    console.log('\n--- Dry run: review below, then re-run with --write to merge into js/data.js ---\n');
+    console.log('\n--- Dry run: review below, then re-run with --write to merge into public/js/data.js ---\n');
     if (newCategories.length > 0) {
       console.log('// Add to KANJI_CATEGORIES:');
       console.log(newCategories.map(formatCategoryEntry).join('\n'));

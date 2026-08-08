@@ -14,6 +14,17 @@
 
 現在、**118字**の漢字を **12テーマ**に分けて収録しています。
 
+## ディレクトリ構成
+
+```
+public/    実際に配信される静的ファイル(index.html・style.css・js/) -- デプロイ対象はここだけ
+tests/     Playwrightのブラウザテスト一式
+tools/     KanjiVGの書き順データ生成など、開発用スクリプト
+docs/      デプロイ手順・新テーマ追加手順などのドキュメント
+```
+
+`tests/`・`tools/`・`docs/` は開発用で、アプリの配信には含まれません(`wrangler.toml` の `[assets] directory` が `public` を指しています)。
+
 ## ローカルで動かす
 
 ビルド不要なので、静的ファイルを配信するだけで動きます。
@@ -45,6 +56,8 @@ Cloudflare Workers(Static Assets)へのGit連携デプロイを想定してい�
 
 ## ライセンス
 
-このプロジェクト自体のコードは [MIT License](LICENSE) です。
+このアプリのコード(HTML/CSS/JS・UI・アプリロジック)と、`public/js/data.js` 内のオリジナルコンテンツ(読み方・意味・例文・書き順のヒント文)は [MIT License](LICENSE) です。
 
-`js/data.js` 内の書き順データ(各画の始点・終点・パス)は [KanjiVG](https://github.com/KanjiVG/kanjivg)（Copyright (C) 2009-2011 Ulrich Apel、[CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/)）を参考に作成・検証しています。このデータを再利用・改変する場合は、KanjiVGのクレジット表記と同ライセンスでの公開が必要です。詳細は [LICENSE](LICENSE) を参照してください。
+ただし `public/js/data.js` の各 `strokes` エントリのうち `type`/`start`/`end`/`svgPath`(書き順の形そのもののデータ)は、[KanjiVG](https://github.com/KanjiVG/kanjivg)（Copyright (C) 2009-2011 Ulrich Apel）のデータをリスケール・分類し直して作ったものです。KanjiVGは [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/) で公開されており、そのShareAlike条項により、派生物であるこの書き順データ自体もCC BY-SA 3.0でのライセンスが**義務付けられています**。そのため、このデータ部分だけは **MITではなくCC BY-SA 3.0** です(単に「再利用する場合はそうしてください」という案内ではなく、このプロジェクト自身がそのライセンスで公開しています)。
+
+このデータを再利用・改変する場合は、KanjiVGへのクレジット表記とCC BY-SA 3.0(または互換ライセンス)での公開が必要です。プロジェクトの他の部分(アプリコード・読み方や例文などのオリジナルコンテンツ)には影響しません。詳細・正確な範囲は [LICENSE](LICENSE) を参照してください。
