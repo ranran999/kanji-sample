@@ -40,16 +40,15 @@ async function main() {
     await page.waitForTimeout(120);
   };
 
-  // First and second wrong strokes: still retryable, no lock yet.
-  await drawWrongStroke();
-  await drawWrongStroke();
+  // First four wrong strokes: still retryable, no lock yet.
+  for (let i = 0; i < 4; i++) await drawWrongStroke();
   let bannerText = await page.textContent('.dc-banner__text');
-  assert(!bannerText.includes('ざんねん'), 'not locked yet after 2 wrong strokes: got ' + bannerText);
+  assert(!bannerText.includes('ざんねん'), 'not locked yet after 4 wrong strokes: got ' + bannerText);
 
-  // Third wrong stroke crosses the limit (TEST_MAX_MISTAKES = 3).
+  // Fifth wrong stroke crosses the limit (TEST_MAX_MISTAKES = 5).
   await drawWrongStroke();
   bannerText = await page.textContent('.dc-banner__text');
-  assert(bannerText.includes('ざんねん'), 'banner shows the ざんねん lock message after 3 wrong strokes: got ' + bannerText);
+  assert(bannerText.includes('ざんねん'), 'banner shows the ざんねん lock message after 5 wrong strokes: got ' + bannerText);
 
   const toastText = await page.textContent('#toast');
   assert(toastText.includes('ざんねん'), 'toast also announces the lock: got ' + toastText);
@@ -92,6 +91,68 @@ async function main() {
     failedKanjiId
   );
   assert(failedTileStamp === '✗', 'previously-failed kanji tile shows the ✗ stamp: got ' + failedTileStamp);
+
+  // The review button should now be visible, and opening it shows the
+  // failed attempt with a real (non-blank) captured image and a fail badge.
+  const resultsBtnHidden = await page.evaluate(() => document.querySelector('.footer-test-results-btn').classList.contains('hidden'));
+  assert(!resultsBtnHidden, 'test-results button appears after a lockout is recorded');
+
+  await page.click('[data-action="test-results"]');
+  await page.waitForTimeout(100);
+
+  const cardCount = await page.locator('.test-result-card').count();
+  assert(cardCount === 1, 'review modal shows exactly one recorded attempt so far: got ' + cardCount);
+
+  const cardIsFail = await page.evaluate(() => document.querySelector('.test-result-card').classList.contains('fail'));
+  assert(cardIsFail, 'the recorded attempt is shown with the fail styling');
+
+  const badgeText = await page.textContent('.test-result-card__badge');
+  assert(badgeText.includes('ふせいかい'), 'fail badge text is correct: got ' + badgeText);
+
+  const imgSrc = await page.getAttribute('.test-result-card__img', 'src');
+  assert(imgSrc.startsWith('data:image/png;base64,') && imgSrc.length > 1000, 'snapshot image is a real captured PNG, not blank/missing');
+
+  await page.click('#test-results-modal .modal-close');
+  await page.waitForTimeout(50);
+  const modalHiddenAfterClose = await page.evaluate(() => document.getElementById('test-results-modal').classList.contains('hidden'));
+  assert(modalHiddenAfterClose, 'review modal closes');
+
+  // Complete the current (next) kanji correctly, following its real stroke
+  // paths -- both outcomes (correct and fail) should end up recorded.
+  const currentKanjiId = await page.evaluate(() => document.querySelector('.kanji-tile.is-selected').dataset.id);
+  const strokePercentPoints = await page.evaluate(async (id) => {
+    const { KANJI_DATA } = await import('/js/data.js');
+    const { sampleSegment } = await import('/js/pathMeasure.js');
+    const kanji = KANJI_DATA.find((k) => k.id === id);
+    return kanji.strokes.map((s) => sampleSegment(s.svgPath, 0, 1, 12));
+  }, currentKanjiId);
+
+  const canvasBox = await page.locator('.dc-canvas').boundingBox();
+  const toCanvasPx = (nx, ny) => ({ x: canvasBox.x + (nx / 100) * canvasBox.width, y: canvasBox.y + (ny / 100) * canvasBox.height });
+  for (const strokePts of strokePercentPoints) {
+    const pxPts = strokePts.map((p) => toCanvasPx(p.x, p.y));
+    await page.mouse.move(pxPts[0].x, pxPts[0].y);
+    await page.mouse.down();
+    for (let i = 1; i < pxPts.length; i++) {
+      await page.mouse.move(pxPts[i].x, pxPts[i].y, { steps: 2 });
+    }
+    await page.mouse.up();
+    await page.waitForTimeout(80);
+  }
+
+  bannerText = await page.textContent('.dc-banner__text');
+  assert(bannerText.includes('完成'), 'the next kanji was completed correctly by following its real strokes: got ' + bannerText);
+
+  await page.click('[data-action="test-results"]');
+  await page.waitForTimeout(100);
+  const cardCountAfterCorrect = await page.locator('.test-result-card').count();
+  assert(cardCountAfterCorrect === 2, 'review modal now shows both the fail and the correct attempt: got ' + cardCountAfterCorrect);
+
+  const correctCardBadge = await page.textContent('.test-result-card.correct .test-result-card__badge');
+  assert(correctCardBadge.includes('せいかい') && !correctCardBadge.includes('ふせいかい'), 'the new card is badged as correct: got ' + correctCardBadge);
+
+  await page.click('#test-results-modal .modal-close');
+  await page.waitForTimeout(50);
 
   // Leaving test mode entirely must unlock drawing again on that same kanji
   // (a バツ only applies within the test session it happened in).

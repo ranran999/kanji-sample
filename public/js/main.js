@@ -8,6 +8,7 @@ import { createKanjiInfoCard } from './components/kanjiInfoCard.js';
 import { createFooter } from './components/footer.js';
 import { createCategoryModal } from './components/categoryModal.js';
 import { createAllKanjiModal } from './components/allKanjiModal.js';
+import { createTestResultsModal } from './components/testResultsModal.js';
 import { createToast } from './components/toast.js';
 import { installIphoneGuards } from './iphoneGuards.js';
 
@@ -19,7 +20,7 @@ function getCategoryIdFromHash() {
 // Wrong strokes on the same kanji allowed in test mode before it's locked
 // in as バツ (wrong) -- a countermeasure against just scribbling random
 // strokes over and over until one happens to pass by luck.
-const TEST_MAX_MISTAKES = 3;
+const TEST_MAX_MISTAKES = 5;
 
 const initialCategory = getCategoryIdFromHash() || 'nature';
 const initialKanji = KANJI_DATA.find((k) => k.category === initialCategory);
@@ -48,6 +49,7 @@ const state = {
   testFailedKanjiIds: {},
   isCategoryModalOpen: false,
   isAllKanjiModalOpen: false,
+  isTestResultsModalOpen: false,
 };
 
 soundManager.setEnabled(state.soundEnabled);
@@ -106,6 +108,10 @@ const canvas = new DrawingCanvas(document.getElementById('drawing-canvas-wrap'),
     state.isDemoPlaying = false;
     render();
   },
+  // Fired only when a test-mode lockout snapshot was just saved, so the
+  // footer's "テストのけっかをみる" button appears without waiting for
+  // another interaction (see the comment at the call site).
+  onTestResultRecorded: () => render(),
 });
 
 const kanjiInfo = createKanjiInfoCard(document.getElementById('kanji-info-card'), {
@@ -118,7 +124,13 @@ const kanjiInfo = createKanjiInfoCard(document.getElementById('kanji-info-card')
   onNextKanji: handleNextKanji,
 });
 
-const footer = createFooter(document.getElementById('app-footer'));
+const footer = createFooter(document.getElementById('app-footer'), {
+  onOpenTestResults: () => {
+    soundManager.playClick();
+    state.isTestResultsModalOpen = true;
+    render();
+  },
+});
 
 const categoryModal = createCategoryModal(document.getElementById('category-modal'), {
   onSelectCategory: handleSelectCategory,
@@ -132,6 +144,13 @@ const allKanjiModal = createAllKanjiModal(document.getElementById('all-kanji-mod
   onSelectKanji: handleSelectKanji,
   onClose: () => {
     state.isAllKanjiModalOpen = false;
+    render();
+  },
+});
+
+const testResultsModal = createTestResultsModal(document.getElementById('test-results-modal'), {
+  onClose: () => {
+    state.isTestResultsModalOpen = false;
     render();
   },
 });
@@ -366,12 +385,15 @@ function render() {
     isTestMode: state.isTestMode,
   });
 
+  const testReviewSnapshots = canvas.getTestReviewSnapshots();
+
   footer.update({
     isWatermarkOn: state.isWatermarkOn,
     isTestMode: state.isTestMode,
     categoryName: currentCategoryName,
     indexInCategory: kanjiListForCategory.findIndex((k) => k.id === currentKanji.id) + 1,
     totalInCategory: kanjiListForCategory.length,
+    hasTestResults: testReviewSnapshots.length > 0,
   });
 
   categoryModal.update({ isOpen: state.isCategoryModalOpen, currentCategory: state.currentCategory });
@@ -379,6 +401,10 @@ function render() {
     isOpen: state.isAllKanjiModalOpen,
     allKanjiList: KANJI_DATA,
     progressMap: state.progressMap,
+  });
+  testResultsModal.update({
+    isOpen: state.isTestResultsModalOpen,
+    snapshots: testReviewSnapshots,
   });
 
   // Only reset the canvas's stroke progress when the kanji (or an explicit

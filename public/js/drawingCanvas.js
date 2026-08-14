@@ -32,6 +32,8 @@ export class DrawingCanvas {
     this.isTestMode = false;
     this.isPenMode = false;
     this.isTestFailed = false;
+    this.lastWrongStroke = null;
+    this.testReviewSnapshots = new Map();
 
     this.currentStrokeIndex = 0;
     this.completedStrokes = [];
@@ -161,6 +163,8 @@ export class DrawingCanvas {
     if (isOn) {
       this._clearHintTimer();
       this.hintReadyForIndex = -1;
+      // A fresh test run starts with a clean review record.
+      this.testReviewSnapshots = new Map();
     } else {
       this._scheduleHintForCurrentStroke();
     }
@@ -212,6 +216,7 @@ export class DrawingCanvas {
     this.currentStrokeIndex = 0;
     this.completedStrokes = [];
     this.activeStroke = [];
+    this.lastWrongStroke = null;
     this.isDrawing = false;
     this.isDemoPlaying = false;
     this._stopDemo();
@@ -326,14 +331,61 @@ export class DrawingCanvas {
       this._updateOverlay();
       this.callbacks.onStrokeSuccess(nextIndex, this.kanji.strokes.length);
       if (isComplete) {
+        if (this.isTestMode) this._saveTestReviewSnapshot('correct');
         this.callbacks.onKanjiComplete(this.isWatermarkOn);
       }
     } else {
+      const attemptedPoints = this.activeStroke;
       this.activeStroke = [];
       this._showFeedback(result.message || 'もういちど書いてみよう！', 'assist');
-      this._render();
+      // onStrokeFail runs main.js's mistake-count logic synchronously, which
+      // may call our own setFailed(true) right inside this call if this
+      // attempt crosses the test-mode mistake limit -- checking isTestFailed
+      // right after tells us whether THIS was the fatal stroke.
+      const wasFailedBefore = this.isTestFailed;
       this.callbacks.onStrokeFail(this.currentStrokeIndex, result.message || 'おしい！もういちど書いてみよう！');
+      const justFailed = !wasFailedBefore && this.isTestFailed;
+      if (justFailed) {
+        // Keep the fatal wrong stroke visible (in red) instead of wiping it
+        // like a normal retry, so both the on-screen lock state and the
+        // review snapshot show exactly what the mistake looked like.
+        this.lastWrongStroke = attemptedPoints;
+      }
+      this._render();
+      if (justFailed) {
+        this._saveTestReviewSnapshot('fail');
+        // callbacks.onStrokeFail() above already triggered main.js's
+        // re-render, but that happened *before* this snapshot existed
+        // (we only know a stroke was fatal by observing what that call
+        // did to our own isTestFailed flag). Prompt one more render so
+        // the "テストのけっかをみる" button/modal reflect it immediately
+        // instead of lagging one interaction behind.
+        this.callbacks.onTestResultRecorded();
+      }
     }
+  }
+
+  // ------------------------------------------------------------------
+  // Test-mode review snapshots: a record of what was actually drawn for
+  // each kanji attempted this test session (correct completions and
+  // fatal-mistake lockouts alike), so a parent/teacher can look back over
+  // the child's real handwriting afterward instead of just the pass/fail
+  // verdict.
+  // ------------------------------------------------------------------
+
+  _saveTestReviewSnapshot(outcome) {
+    if (!this.kanji) return;
+    this.testReviewSnapshots.set(this.kanji.id, {
+      kanjiId: this.kanji.id,
+      character: this.kanji.character,
+      outcome,
+      imageDataUrl: this.canvasEl.toDataURL('image/png'),
+      timestamp: Date.now(),
+    });
+  }
+
+  getTestReviewSnapshots() {
+    return Array.from(this.testReviewSnapshots.values()).sort((a, b) => a.timestamp - b.timestamp);
   }
 
   // ------------------------------------------------------------------
@@ -497,6 +549,12 @@ export class DrawingCanvas {
     // 1. Completed user strokes (their own free-hand ink)
     for (const stroke of this.completedStrokes) {
       drawPointsPath(stroke, '#1E293B', INK_WIDTH);
+    }
+
+    // 1b. The fatal wrong stroke that triggered a test-mode lockout, kept
+    // visible in red instead of being wiped like a normal retry would be.
+    if (this.isTestFailed && this.lastWrongStroke) {
+      drawPointsPath(this.lastWrongStroke, '#E71D36', INK_WIDTH);
     }
 
     // 2. Currently active user stroke
