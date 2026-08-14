@@ -15,6 +15,7 @@
   --teal-darker: #1a7a71;
   --red: #e71d36;
   --red-dark: #b5162a;
+  --red-50: #fef2f2;
   --ink: #1e293b;
   --text-main: #333333;
   --amber-50: #fffbeb;
@@ -628,6 +629,12 @@ canvas {
   color: var(--text-main);
 }
 
+.kanji-tile.is-fail:not(.is-selected) {
+  background: var(--red-50);
+  border-color: var(--red);
+  color: var(--text-main);
+}
+
 .kanji-tile:not(.is-selected):hover {
   transform: scale(1.05);
 }
@@ -655,6 +662,10 @@ canvas {
 
 .kanji-tile__stamp.silver {
   background: var(--slate-400);
+}
+
+.kanji-tile__stamp.fail {
+  background: var(--red);
 }
 
 .stars-card {
@@ -839,6 +850,10 @@ canvas {
 
 .dc-feedback__text.assist {
   background: var(--orange);
+}
+
+.dc-feedback__text.fail {
+  background: var(--red);
 }
 
 .dc-canvas {

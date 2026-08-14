@@ -227,6 +227,72 @@ class SoundManager {
     }
   }
 
+  // Play "test locked as wrong" cue (a short, final-sounding low buzzer --
+  // distinct from playWrongStroke's gentle retry nudge, since this means
+  // the kanji is now locked, not "try again").
+  playTestFail() {
+    if (!this.enabled) return;
+    this.init();
+    if (!this.ctx) return;
+
+    try {
+      const now = this.ctx.currentTime;
+      const notes = [220, 174.61]; // A3 -> F3, a flat "nope" buzzer
+      notes.forEach((freq, idx) => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(freq, now + idx * 0.16);
+
+        gain.gain.setValueAtTime(0, now + idx * 0.16);
+        gain.gain.linearRampToValueAtTime(0.14, now + idx * 0.16 + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.16 + 0.3);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now + idx * 0.16);
+        osc.stop(now + idx * 0.16 + 0.3);
+      });
+    } catch {
+      // Ignore
+    }
+  }
+
+  // Play "test mode ended" cue. Exists alongside speak() below because
+  // SpeechSynthesis often stays silent when invoked from a timer callback
+  // (as the exit hold-to-confirm gesture does) instead of directly inside a
+  // user-gesture event handler -- several browsers gate speech synthesis
+  // more strictly than Web Audio, which keeps working fine once unlocked
+  // earlier in the session. This oscillator-based chime is the cue that's
+  // actually guaranteed to be heard.
+  playTestEnd() {
+    if (!this.enabled) return;
+    this.init();
+    if (!this.ctx) return;
+
+    try {
+      const now = this.ctx.currentTime;
+      const notes = [659.25, 523.25]; // E5 -> C5, a settling "done" cue
+      notes.forEach((freq, idx) => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now + idx * 0.14);
+
+        gain.gain.setValueAtTime(0, now + idx * 0.14);
+        gain.gain.linearRampToValueAtTime(0.18, now + idx * 0.14 + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.14 + 0.3);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now + idx * 0.14);
+        osc.stop(now + idx * 0.14 + 0.3);
+      });
+    } catch {
+      // Ignore
+    }
+  }
+
   // Spoken announcement (e.g. "テストを終了します") via the browser's built-in
   // text-to-speech -- no audio asset needed, works offline like the other cues.
   speak(text) {

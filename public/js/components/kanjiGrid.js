@@ -47,15 +47,18 @@ export function createKanjiGrid(container, callbacks) {
       .map((item) => {
         const progress = state.progressMap[item.id];
         const clearGrade = progress?.clearGrade || 'none';
+        const isFailed = !!state.testFailedKanjiIds?.[item.id];
         const isSelected = item.id === state.currentKanjiId;
 
         const classes = ['kanji-tile'];
         if (isSelected) classes.push('is-selected');
+        else if (isFailed) classes.push('is-fail');
         else if (clearGrade === 'gold') classes.push('is-gold');
         else if (clearGrade === 'silver') classes.push('is-silver');
 
         let stamp = '';
-        if (!isSelected && clearGrade === 'gold') stamp = '<span class="kanji-tile__stamp gold">金</span>';
+        if (!isSelected && isFailed) stamp = '<span class="kanji-tile__stamp fail">✗</span>';
+        else if (!isSelected && clearGrade === 'gold') stamp = '<span class="kanji-tile__stamp gold">金</span>';
         else if (!isSelected && clearGrade === 'silver') stamp = '<span class="kanji-tile__stamp silver">銀</span>';
 
         const label = getHiddenAnswerLabel(item);

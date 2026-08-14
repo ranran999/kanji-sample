@@ -31,6 +31,7 @@ export class DrawingCanvas {
     this.isDemoPlaying = false;
     this.isTestMode = false;
     this.isPenMode = false;
+    this.isTestFailed = false;
 
     this.currentStrokeIndex = 0;
     this.completedStrokes = [];
@@ -170,6 +171,21 @@ export class DrawingCanvas {
     this._resetProgress();
   }
 
+  // Test mode "wrong" lockout: called every render with whether the current
+  // kanji has hit its mistake limit this test session. Deliberately NOT
+  // reset by _resetProgress()/setKanji() -- the caller (main.js) tracks the
+  // mistake count per kanji id independently of the canvas's own per-attempt
+  // state, so clicking "けす" (clear) to wipe the ink can't be used to
+  // reset the count and keep guessing forever.
+  setFailed(isFailed) {
+    if (isFailed === this.isTestFailed) return;
+    this.isTestFailed = isFailed;
+    if (isFailed) {
+      this._showFeedback('❌ ざんねん、これで おわり', 'fail');
+    }
+    this._updateOverlay();
+  }
+
   setDemoPlaying(isPlaying) {
     if (isPlaying === this.isDemoPlaying) return;
     this.isDemoPlaying = isPlaying;
@@ -242,6 +258,7 @@ export class DrawingCanvas {
     // already in progress, and in pen mode only a real stylus may draw at
     // all -- any other pointer (finger, palm) is ignored outright.
     if (this.isDrawing) return;
+    if (this.isTestFailed) return;
     if (this.isPenMode && e.pointerType !== 'pen') return;
     try {
       this.canvasEl.setPointerCapture(e.pointerId);
@@ -337,7 +354,7 @@ export class DrawingCanvas {
   _showFeedback(text, type) {
     this._clearFeedbackTimers();
 
-    this.feedbackEmojiEl.textContent = type === 'success' ? '✨' : '🔥';
+    this.feedbackEmojiEl.textContent = type === 'success' ? '✨' : type === 'fail' ? '❌' : '🔥';
     this.feedbackTextEl.textContent = text;
     this.feedbackTextEl.className = `dc-feedback__text ${type}`;
 
@@ -445,6 +462,8 @@ export class DrawingCanvas {
 
     if (isComplete) {
       this.bannerTextEl.textContent = '🎉 完成！！';
+    } else if (this.isTestFailed) {
+      this.bannerTextEl.textContent = '❌ ざんねん、つぎの かん字に すすもう';
     } else if (this.isTestMode) {
       // Test mode must not reveal the stroke number/total or the hint
       // sentence -- both count as answer-adjacent help.
