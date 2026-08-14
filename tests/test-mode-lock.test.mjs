@@ -37,6 +37,18 @@ async function main() {
   await page.goto(BASE + '/index.html');
   await page.waitForSelector('.kanji-tile');
 
+  // soundManager is an ES module singleton -- importing it here from the
+  // page resolves to the exact same instance main.js uses, so patching a
+  // method on it lets us assert the call happened without needing real
+  // audio output in headless Chromium.
+  await page.evaluate(async () => {
+    const { soundManager } = await import('/js/soundManager.js');
+    window.__testEndCalls = 0;
+    soundManager.playTestEnd = () => {
+      window.__testEndCalls += 1;
+    };
+  });
+
   const toggle = () => page.locator('[data-action="test-mode"]');
 
   // Turning ON is a normal, instant tap.
@@ -76,6 +88,12 @@ async function main() {
 
   const spoken = await page.evaluate(() => window.__spoken);
   assert(spoken.includes('テストを終了します'), 'exit voice line was spoken: got ' + JSON.stringify(spoken));
+
+  // speak() alone can silently fail to vocalize on real devices since it
+  // fires from this setTimeout callback rather than directly inside the
+  // gesture handler -- playTestEnd() is the actually-reliable audio cue.
+  const testEndCalls = await page.evaluate(() => window.__testEndCalls);
+  assert(testEndCalls === 1, 'playTestEnd() (reliable audio fallback) was called on exit: got ' + testEndCalls);
 
   // ---- Back-button / hash escape check ----
   await page.click('[data-action="category"]');

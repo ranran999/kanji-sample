@@ -8,6 +8,7 @@ import { createKanjiInfoCard } from './components/kanjiInfoCard.js';
 import { createFooter } from './components/footer.js';
 import { createCategoryModal } from './components/categoryModal.js';
 import { createAllKanjiModal } from './components/allKanjiModal.js';
+import { createTestResultsModal } from './components/testResultsModal.js';
 import { createToast } from './components/toast.js';
 import { installIphoneGuards } from './iphoneGuards.js';
 
@@ -15,6 +16,11 @@ function getCategoryIdFromHash() {
   const hash = decodeURIComponent(location.hash.slice(1));
   return KANJI_CATEGORIES.some((c) => c.id === hash) ? hash : null;
 }
+
+// Wrong strokes on the same kanji allowed in test mode before it's locked
+// in as バツ (wrong) -- a countermeasure against just scribbling random
+// strokes over and over until one happens to pass by luck.
+const TEST_MAX_MISTAKES = 5;
 
 const initialCategory = getCategoryIdFromHash() || 'nature';
 const initialKanji = KANJI_DATA.find((k) => k.category === initialCategory);
@@ -34,8 +40,16 @@ const state = {
   // medals, so the app can be reused for a fresh test without old results
   // lingering.
   progressMap: {},
+  // Test-session-only: how many wrong strokes each kanji has had so far,
+  // and which kanji have hit the limit and are locked as バツ. Both reset
+  // whenever test mode is freshly turned on (a new test run), and are
+  // deliberately untouched by the "けす" (clear canvas) button so it can't
+  // be used to reset the mistake count and keep guessing.
+  testMistakeCounts: {},
+  testFailedKanjiIds: {},
   isCategoryModalOpen: false,
   isAllKanjiModalOpen: false,
+  isTestResultsModalOpen: false,
 };
 
 soundManager.setEnabled(state.soundEnabled);
@@ -94,6 +108,10 @@ const canvas = new DrawingCanvas(document.getElementById('drawing-canvas-wrap'),
     state.isDemoPlaying = false;
     render();
   },
+  // Fired only when a test-mode lockout snapshot was just saved, so the
+  // footer's "テストのけっかをみる" button appears without waiting for
+  // another interaction (see the comment at the call site).
+  onTestResultRecorded: () => render(),
 });
 
 const kanjiInfo = createKanjiInfoCard(document.getElementById('kanji-info-card'), {
@@ -106,7 +124,13 @@ const kanjiInfo = createKanjiInfoCard(document.getElementById('kanji-info-card')
   onNextKanji: handleNextKanji,
 });
 
-const footer = createFooter(document.getElementById('app-footer'));
+const footer = createFooter(document.getElementById('app-footer'), {
+  onOpenTestResults: () => {
+    soundManager.playClick();
+    state.isTestResultsModalOpen = true;
+    render();
+  },
+});
 
 const categoryModal = createCategoryModal(document.getElementById('category-modal'), {
   onSelectCategory: handleSelectCategory,
@@ -120,6 +144,13 @@ const allKanjiModal = createAllKanjiModal(document.getElementById('all-kanji-mod
   onSelectKanji: handleSelectKanji,
   onClose: () => {
     state.isAllKanjiModalOpen = false;
+    render();
+  },
+});
+
+const testResultsModal = createTestResultsModal(document.getElementById('test-results-modal'), {
+  onClose: () => {
+    state.isTestResultsModalOpen = false;
     render();
   },
 });
@@ -146,9 +177,16 @@ function handleToggleTestMode() {
   if (state.isTestMode) {
     state.isWatermarkOn = false;
     state.isDemoPlaying = false;
+    state.testMistakeCounts = {};
+    state.testFailedKanjiIds = {};
     soundManager.playClick();
     toast.show('🧪 テストモードを はじめるよ');
   } else {
+    // speak() alone is unreliable here: this fires from the exit hold's
+    // setTimeout callback, not directly inside a user-gesture handler, and
+    // several browsers silently refuse to vocalize speech synthesis
+    // triggered that way. playTestEnd() is a guaranteed-audible fallback.
+    soundManager.playTestEnd();
     soundManager.speak('テストを終了します');
     toast.show('テストモードを おわったよ');
   }
@@ -235,6 +273,18 @@ function handleStrokeFail() {
   if (!state.isTestMode && !state.isWatermarkOn) {
     state.isWatermarkOn = true;
     soundManager.playModeSwitch(true);
+  }
+  if (state.isTestMode) {
+    const kanji = getCurrentKanji();
+    if (!state.testFailedKanjiIds[kanji.id]) {
+      const count = (state.testMistakeCounts[kanji.id] || 0) + 1;
+      state.testMistakeCounts = { ...state.testMistakeCounts, [kanji.id]: count };
+      if (count >= TEST_MAX_MISTAKES) {
+        state.testFailedKanjiIds = { ...state.testFailedKanjiIds, [kanji.id]: true };
+        soundManager.playTestFail();
+        toast.show('❌ ざんねん、つぎの かん字に すすもう');
+      }
+    }
   }
   render();
 }
@@ -324,6 +374,7 @@ function render() {
     kanjiList: kanjiListForCategory,
     currentKanjiId: currentKanji.id,
     progressMap: state.progressMap,
+    testFailedKanjiIds: state.isTestMode ? state.testFailedKanjiIds : {},
     totalStars,
     categoryName: currentCategoryName,
   });
@@ -334,12 +385,15 @@ function render() {
     isTestMode: state.isTestMode,
   });
 
+  const testReviewSnapshots = canvas.getTestReviewSnapshots();
+
   footer.update({
     isWatermarkOn: state.isWatermarkOn,
     isTestMode: state.isTestMode,
     categoryName: currentCategoryName,
     indexInCategory: kanjiListForCategory.findIndex((k) => k.id === currentKanji.id) + 1,
     totalInCategory: kanjiListForCategory.length,
+    hasTestResults: testReviewSnapshots.length > 0,
   });
 
   categoryModal.update({ isOpen: state.isCategoryModalOpen, currentCategory: state.currentCategory });
@@ -347,6 +401,10 @@ function render() {
     isOpen: state.isAllKanjiModalOpen,
     allKanjiList: KANJI_DATA,
     progressMap: state.progressMap,
+  });
+  testResultsModal.update({
+    isOpen: state.isTestResultsModalOpen,
+    snapshots: testReviewSnapshots,
   });
 
   // Only reset the canvas's stroke progress when the kanji (or an explicit
@@ -360,6 +418,7 @@ function render() {
   canvas.setWatermark(state.isWatermarkOn);
   canvas.setTestMode(state.isTestMode);
   canvas.setPenMode(state.isPenModeOn);
+  canvas.setFailed(state.isTestMode && !!state.testFailedKanjiIds[currentKanji.id]);
   canvas.setDemoPlaying(state.isDemoPlaying);
 }
 
