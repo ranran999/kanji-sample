@@ -17,9 +17,10 @@ function getCategoryIdFromHash() {
   return KANJI_CATEGORIES.some((c) => c.id === hash) ? hash : null;
 }
 
-// Wrong strokes on the same kanji allowed in test mode before it's locked
-// in as バツ (wrong) -- a countermeasure against just scribbling random
-// strokes over and over until one happens to pass by luck.
+// Consecutive wrong strokes on the same kanji allowed in test mode before
+// it's locked in as バツ (wrong) -- a countermeasure against just
+// scribbling random strokes over and over until one happens to pass by
+// luck. Getting a stroke right resets the streak back to zero.
 const TEST_MAX_MISTAKES = 5;
 
 const initialCategory = getCategoryIdFromHash() || 'nature';
@@ -40,11 +41,12 @@ const state = {
   // medals, so the app can be reused for a fresh test without old results
   // lingering.
   progressMap: {},
-  // Test-session-only: how many wrong strokes each kanji has had so far,
-  // and which kanji have hit the limit and are locked as バツ. Both reset
-  // whenever test mode is freshly turned on (a new test run), and are
-  // deliberately untouched by the "けす" (clear canvas) button so it can't
-  // be used to reset the mistake count and keep guessing.
+  // Test-session-only: each kanji's current *consecutive* wrong-stroke
+  // streak (reset to 0 by any correct stroke on that kanji), and which
+  // kanji have hit the limit and are locked as バツ. Both reset whenever
+  // test mode is freshly turned on (a new test run), and are deliberately
+  // untouched by the "けす" (clear canvas) button so it can't be used to
+  // reset the mistake count and keep guessing.
   testMistakeCounts: {},
   testFailedKanjiIds: {},
   isCategoryModalOpen: false,
@@ -264,6 +266,14 @@ function handleNextKanji() {
 
 function handleStrokeSuccess(strokeIndex) {
   soundManager.playCorrectStroke(strokeIndex);
+  // A correct stroke breaks the wrong-stroke streak -- only 5 *consecutive*
+  // mistakes on the same kanji lock it as バツ, not 5 total.
+  if (state.isTestMode) {
+    const kanji = getCurrentKanji();
+    if (state.testMistakeCounts[kanji.id]) {
+      state.testMistakeCounts = { ...state.testMistakeCounts, [kanji.id]: 0 };
+    }
+  }
 }
 
 // If a mistake happens in チャレンジモード (no watermark), fall back to
