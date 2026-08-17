@@ -1,5 +1,7 @@
 # かん字マスター 小2
 
+**🔗 公開URL: [https://kanji-sample.ranran9g.workers.dev/](https://kanji-sample.ranran9g.workers.dev/)**
+
 小学2年生向けの、漢字の書き順を練習できるWebアプリです。ビルド不要のプレーンHTML/CSS/JSで作られており、[Cloudflare Workers](https://developers.cloudflare.com/workers/static-assets/) でホスティングしています。
 
 ## 特徴
