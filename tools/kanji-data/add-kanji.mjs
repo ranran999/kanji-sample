@@ -1,21 +1,23 @@
-// Adds new kanji to public/js/data.js from plain text input (character, category,
-// readings, meaning, example sentences) -- no worksheet photo needed. This
-// covers the case where you already know exactly which kanji you want to
-// add (e.g. from a textbook table of contents, or just typing them in)
-// rather than extracting them from a photo (see docs/adding-a-kanji-theme.md
-// for that workflow).
+// Adds new kanji (or hiragana/katakana) to public/js/data.js from plain
+// text input (character, category, readings, meaning, example sentences)
+// -- no worksheet photo needed. This covers the case where you already
+// know exactly which characters you want to add (e.g. from a textbook
+// table of contents, or just typing them in) rather than extracting them
+// from a photo (see docs/adding-a-kanji-theme.md for that workflow).
 //
-// The KanjiVG stroke data (shape, start/end points, hint text) is still
-// generated automatically, same as generate-stroke-data.mjs. What this tool
-// adds on top is: validating the example sentences against this app's
-// answer-masking logic (public/js/kanjiText.js) *before* merging, so the class of
-// bugs found during the original worksheet-photo import (a reading that
-// doesn't match the masked sentence, an example sentence missing the kanji
-// entirely, etc.) gets caught here instead of after publishing.
+// The stroke data (shape, start/end points, hint text) is still generated
+// automatically -- from KanjiVG for kanji (generate-stroke-data.mjs), or
+// from animCJK for kana (generate-kana-stroke-data.mjs) when an entry sets
+// "source": "kana". What this tool adds on top is: validating the example
+// sentences against this app's answer-masking logic (public/js/kanjiText.js)
+// *before* merging, so the class of bugs found during the original
+// worksheet-photo import (a reading that doesn't match the masked
+// sentence, an example sentence missing the character entirely, etc.)
+// gets caught here instead of after publishing.
 //
 // Usage:
 //   node tools/kanji-data/add-kanji.mjs --input new-kanji.json
-//     Dry run: fetches KanjiVG data, validates, and prints the ready-to-review
+//     Dry run: fetches stroke data, validates, and prints the ready-to-review
 //     public/js/data.js snippet -- does not touch any files.
 //
 //   node tools/kanji-data/add-kanji.mjs --input new-kanji.json --write
@@ -33,6 +35,7 @@
 //         "id": "mizuumi",                 // optional; defaults to k<codepoint>
 //         "category": "lake",              // must exist, or be in newCategories above
 //         "grade": 2,                      // optional; defaults to 2
+//         "source": "kanji",               // optional; "kanji" (default, KanjiVG) or "kana" (animCJK)
 //         "readings": { "onyomi": ["コ"], "kunyomi": ["みずうみ"] },
 //         "meaning": "みずうみ",
 //         "examples": [
@@ -45,7 +48,8 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { processCharacter, toCodepoint } from './generate-stroke-data.mjs';
+import { processCharacter } from './generate-stroke-data.mjs';
+import { processKanaCharacter } from './generate-kana-stroke-data.mjs';
 import { launchBrowser } from '../../tests/helpers/browser.mjs';
 import { getHiddenAnswerLabel } from '../../public/js/kanjiText.js';
 import { KANJI_DATA, KANJI_CATEGORIES } from '../../public/js/data.js';
@@ -62,8 +66,11 @@ function validateEntry(entry, existingCharacters, categoryIds, seenCharacters) {
   const warnings = [];
 
   if (!entry.character || Array.from(entry.character).length !== 1) {
-    problems.push(`"character" must be exactly one kanji, got ${JSON.stringify(entry.character)}`);
+    problems.push(`"character" must be exactly one character, got ${JSON.stringify(entry.character)}`);
     return { problems, warnings };
+  }
+  if (entry.source && entry.source !== 'kanji' && entry.source !== 'kana') {
+    problems.push(`"source" must be "kanji" or "kana" if set, got ${JSON.stringify(entry.source)}`);
   }
   if (existingCharacters.has(entry.character)) {
     problems.push(`${entry.character} is already in public/js/data.js -- pass --force to add anyway (will create a duplicate)`);
@@ -226,7 +233,7 @@ async function main() {
     process.exit(hasBlockingProblems ? 1 : 0);
   }
 
-  console.log(`\nFetching KanjiVG stroke data for ${toGenerate.length} kanji...`);
+  console.log(`\nFetching stroke data for ${toGenerate.length} character(s)...`);
   const browser = await launchBrowser();
   const page = await browser.newPage();
   await page.setContent('<html><body></body></html>');
@@ -234,7 +241,8 @@ async function main() {
   const finalEntries = [];
   for (const entry of toGenerate) {
     try {
-      const { codepoint, strokeCount, strokes } = await processCharacter(page, entry.character);
+      const { codepoint, strokeCount, strokes } =
+        entry.source === 'kana' ? await processKanaCharacter(page, entry.character) : await processCharacter(page, entry.character);
       finalEntries.push({
         id: entry.id || `k${codepoint}`,
         character: entry.character,

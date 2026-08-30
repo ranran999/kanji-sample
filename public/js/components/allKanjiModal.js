@@ -12,7 +12,7 @@ export function createAllKanjiModal(overlayEl, callbacks) {
         <div>
           <div class="modal-header__title-row">
             <span class="modal-header__emoji">📖</span>
-            <h2 class="modal-header__title">小学２年生 漢字いちらん</h2>
+            <h2 class="modal-header__title">かん字・ひらがな・カタカナ いちらん</h2>
           </div>
           <div class="modal-header__stats">
             <span class="gold-count"></span>

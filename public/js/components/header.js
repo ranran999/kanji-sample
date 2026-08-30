@@ -19,7 +19,7 @@ export function createHeader(container, callbacks) {
         </button>
         <button type="button" class="btn-pill btn-pill--dark" data-action="all-kanji">
           <span>📖</span>
-          <span>漢字いちらん</span>
+          <span>もじいちらん</span>
         </button>
       </div>
     </div>

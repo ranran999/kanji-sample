@@ -25,6 +25,7 @@ export function createKanjiGrid(container, callbacks) {
   `;
 
   const els = {
+    title: container.querySelector('.kanji-grid-card__title'),
     mobileBarName: container.querySelector('.category-mobile-bar__name'),
     subtitle: container.querySelector('.kanji-grid-card__subtitle'),
     grid: container.querySelector('.kanji-grid'),
@@ -39,6 +40,8 @@ export function createKanjiGrid(container, callbacks) {
   });
 
   function update(state) {
+    const isKana = state.kanjiList[0]?.category === 'hiragana' || state.kanjiList[0]?.category === 'katakana';
+    els.title.textContent = isKana ? 'きょうの もじ' : 'きょうの かん字';
     els.mobileBarName.textContent = `テーマ: ${state.categoryName}`;
     els.subtitle.textContent = state.categoryName;
     els.starsValue.textContent = state.totalStars.toLocaleString();

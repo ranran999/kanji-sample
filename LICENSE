@@ -54,3 +54,37 @@ work, your result must likewise credit KanjiVG and be released under
 CC BY-SA 3.0 or a CC-compatible license. This requirement applies only to
 that geometry data -- the rest of this repository remains available under
 the MIT license above.
+
+---
+
+Hiragana/katakana stroke geometry: LGPL-3.0-or-later
+------------------------------------------------------
+
+The same split applies to the kana entries in public/js/data.js (the
+hiragana/katakana categories): the `type`, `start`, `end`, and `svgPath`
+fields of each `strokes` entry are geometry -- rescaled and reclassified,
+not independently drawn -- derived from animCJK's Japanese kana SVGs
+(https://github.com/parsimonhi/animCJK, `svgsJaKana/`). Per that project's
+own licensing notice, those kana SVG files (unlike its kanji/hanzi ones,
+which are derived from Arphic fonts under different terms) are licensed
+under the GNU Lesser General Public License, version 3 or later
+(LGPL-3.0-or-later, full text in third_party_licenses/LGPL-3.0.txt and
+https://www.gnu.org/licenses/lgpl-3.0.html, which in turn incorporates
+GPL-3.0 by reference -- see https://www.gnu.org/licenses/gpl-3.0.html).
+
+The LGPL is written for software libraries, but its copyleft (modifying
+and redistributing "the Library" requires the modified version to remain
+under the same license) applies just as much to this rescaled/reclassified
+geometry data as it would to modified library source. In compliance with
+that requirement:
+
+  The `type`/`start`/`end`/`svgPath` stroke geometry fields for the
+  hiragana/katakana entries in public/js/data.js are themselves licensed
+  under LGPL-3.0-or-later, with attribution to the animCJK project.
+
+If you extract and reuse that kana geometry data, alone or combined with
+new work, your result must likewise credit animCJK and be released under
+LGPL-3.0-or-later. This requirement applies only to that geometry data --
+the rest of this repository remains available under the MIT license
+above (and the kanji stroke geometry stays CC BY-SA 3.0, as described
+above).

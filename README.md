@@ -14,7 +14,7 @@
 - **プリントから作ったテーマ**: 実際の宿題・テストのプリント写真から抽出した漢字テーマも収録しています（[docs/adding-a-kanji-theme.md](docs/adding-a-kanji-theme.md) 参照）。
 - **プライバシー配慮**: アカウント登録・広告・外部トラッキング一切なし。学習の進み具合(金銀メダル)は保存せず、リロードするたびにまっさらな状態から始まります。
 
-現在、**118字**の漢字を **12テーマ**に分けて収録しています。
+現在、**118字**の漢字を **12テーマ**に分けて収録しています。加えて、**ひらがな・カタカナも各46字**、書き順テスト用のテーマとして収録しています。
 
 ## ディレクトリ構成
 
@@ -62,4 +62,8 @@ Cloudflare Workers(Static Assets)へのGit連携デプロイを想定してい�
 
 ただし `public/js/data.js` の各 `strokes` エントリのうち `type`/`start`/`end`/`svgPath`(書き順の形そのもののデータ)は、[KanjiVG](https://github.com/KanjiVG/kanjivg)（Copyright (C) 2009-2011 Ulrich Apel）のデータをリスケール・分類し直して作ったものです。KanjiVGは [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/) で公開されており、そのShareAlike条項により、派生物であるこの書き順データ自体もCC BY-SA 3.0でのライセンスが**義務付けられています**。そのため、このデータ部分だけは **MITではなくCC BY-SA 3.0** です(単に「再利用する場合はそうしてください」という案内ではなく、このプロジェクト自身がそのライセンスで公開しています)。
 
-このデータを再利用・改変する場合は、KanjiVGへのクレジット表記とCC BY-SA 3.0(または互換ライセンス)での公開が必要です。プロジェクトの他の部分(アプリコード・読み方や例文などのオリジナルコンテンツ)には影響しません。詳細・正確な範囲は [LICENSE](LICENSE) を参照してください。
+このデータを再利用・改変する場合は、KanjiVGへのクレジット表記とCC BY-SA 3.0(または互換ライセンス)での公開が必要です。プロジェクトの他の部分(アプリコード・読み方や例文などのオリジナルコンテンツ)には影響しません。
+
+同様に、ひらがな・カタカナ(`hiragana`・`katakana` カテゴリ)の `type`/`start`/`end`/`svgPath` は [animCJK](https://github.com/parsimonhi/animCJK) の `svgsJaKana` データをリスケール・分類し直したもので、animCJKのかなSVGは [LGPL-3.0-or-later](third_party_licenses/LGPL-3.0.txt) で公開されているため、この部分のデータも同じくLGPL-3.0-or-laterです。
+
+詳細・正確な範囲は [LICENSE](LICENSE) を参照してください。
