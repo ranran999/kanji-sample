@@ -102,8 +102,12 @@ async function main() {
     await page.click('[data-action="category"]');
     await page.waitForTimeout(50);
     assert(await page.locator('#category-modal').isVisible(), 'category modal opens');
+    const expectedCatCount = await page.evaluate(async () => {
+      const { KANJI_CATEGORIES } = await import('/js/data.js');
+      return KANJI_CATEGORIES.length;
+    });
     const catCards = await page.locator('.category-card').count();
-    assert(catCards === 12, 'category modal lists 12 categories: got ' + catCards);
+    assert(catCards === expectedCatCount, `category modal lists all ${expectedCatCount} categories: got ` + catCards);
     await page.click('.category-card[data-id="school"]');
     await page.waitForTimeout(100);
     const catNameAfter = await page.textContent('.kanji-grid-card__subtitle');

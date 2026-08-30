@@ -3,7 +3,7 @@ import { maskAnswerInText, maskAnswerInHtml } from '../kanjiText.js';
 export function createKanjiInfoCard(container, callbacks) {
   container.innerHTML = `
     <div class="readings-card">
-      <span class="readings-card__label">おんよみ / くんよみ</span>
+      <span class="readings-card__label"></span>
       <div class="readings-card__readings">
         <div class="readings-card__onyomi"></div>
         <div class="readings-card__divider"></div>
@@ -35,7 +35,9 @@ export function createKanjiInfoCard(container, callbacks) {
   `;
 
   const els = {
+    label: container.querySelector('.readings-card__label'),
     onyomi: container.querySelector('.readings-card__onyomi'),
+    divider: container.querySelector('.readings-card__divider'),
     kunyomi: container.querySelector('.readings-card__kunyomi'),
     meaning: container.querySelector('.readings-card__meaning'),
     example: container.querySelector('.readings-card__example'),
@@ -49,8 +51,19 @@ export function createKanjiInfoCard(container, callbacks) {
 
   function update(state) {
     const kanji = state.kanji;
-    els.onyomi.textContent = kanji.readings.onyomi.length > 0 ? kanji.readings.onyomi.join(' ・ ') : 'なし';
-    els.kunyomi.textContent = kanji.readings.kunyomi.length > 0 ? kanji.readings.kunyomi.join(' ・ ') : 'なし';
+    // Hiragana/katakana don't have on'yomi/kun'yomi -- that split is a
+    // kanji-specific linguistic distinction, so showing it for kana would
+    // be flatly wrong. Show a single reading instead.
+    const isKana = kanji.category === 'hiragana' || kanji.category === 'katakana';
+    els.label.textContent = isKana ? 'よみ方（ローマ字）' : 'おんよみ / くんよみ';
+    els.onyomi.classList.toggle('hidden', isKana);
+    els.divider.classList.toggle('hidden', isKana);
+    if (isKana) {
+      els.kunyomi.textContent = kanji.readings.kunyomi[0] || kanji.readings.onyomi[0] || '';
+    } else {
+      els.onyomi.textContent = kanji.readings.onyomi.length > 0 ? kanji.readings.onyomi.join(' ・ ') : 'なし';
+      els.kunyomi.textContent = kanji.readings.kunyomi.length > 0 ? kanji.readings.kunyomi.join(' ・ ') : 'なし';
+    }
     els.meaning.textContent = maskAnswerInText(kanji.meaning, kanji);
     els.example.innerHTML =
       kanji.examples.length > 0 ? `「${maskAnswerInHtml(kanji.examples[0].sentence, kanji)}」` : '';

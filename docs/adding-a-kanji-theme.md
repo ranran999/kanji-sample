@@ -129,3 +129,32 @@ npm test
 ```
 
 既に存在する漢字を(意図的に)重複追加したい場合は `--force` を付けてください。
+
+## 3. ひらがな・カタカナを追加する
+
+漢字と同じ `add-kanji.mjs` で、ひらがな・カタカナも追加できます。入力の各エントリに `"source": "kana"` を指定すると、KanjiVGの代わりに [animCJK](https://github.com/parsimonhi/animCJK)(`svgsJaKana/`、LGPL-3.0-or-later)から書き順データを取得します。詳しいライセンス上の扱いは [LICENSE](../LICENSE) を参照してください。
+
+```json
+{
+  "kanji": [
+    {
+      "character": "あ",
+      "id": "hira_a",
+      "category": "hiragana",
+      "grade": 1,
+      "source": "kana",
+      "readings": { "onyomi": [], "kunyomi": ["a"] },
+      "meaning": "ローマ字：a",
+      "examples": [
+        { "word": "あさ", "reading": "あさ", "sentence": "あさに おきる。" }
+      ]
+    }
+  ]
+}
+```
+
+かな特有の注意点:
+
+- `readings.kunyomi` にローマ字1つを入れます(`onyomi` は空のままでOK)。かなは読みが1音に固定なので、漢字のような「読みの順番でマスクが変わる」問題は起きません。
+- animCJKのSVGにはKanjiVGの `kvg:type` のようなメタデータが無いため、`tools/kanji-data/generate-kana-stroke-data.mjs` は書き順の形(始点・終点・曲がり具合)から自動でタイプを判定します。判定結果に納得がいかない場合は、生成された `type`/`hintText` を手で調整してください。
+- `public/js/components/kanjiInfoCard.js` は `category` が `hiragana`/`katakana` のとき、おんよみ/くんよみの表示を単一の「よみ方（ローマ字）」表示に自動で切り替えます。新しいかなカテゴリを追加する場合も、同じ `category` id の命名(`hiragana`・`katakana`)に合わせるとこの表示切り替えがそのまま効きます。
