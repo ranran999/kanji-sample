@@ -434,3 +434,13 @@ function render() {
 
 installIphoneGuards();
 render();
+
+// Registered from here (not an inline <script> in index.html) because the
+// page's CSP has no 'unsafe-inline' in script-src.
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch((err) => {
+      console.error('Service worker registration failed:', err);
+    });
+  });
+}
