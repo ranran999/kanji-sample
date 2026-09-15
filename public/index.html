@@ -14,14 +14,21 @@
          other _headers-only protections can't be replicated this way. -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; base-uri 'self'; form-action 'none'; object-src 'none'"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; base-uri 'self'; form-action 'none'; object-src 'none'"
     />
     <title>かん字マスター 小2 - 漢字練習アプリ</title>
     <meta
       name="description"
       content="小学2年生が習う漢字を、書き順を確認しながら楽しく練習できるWebアプリ。"
     />
-    <link rel="icon" href="data:," />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./icons/icon-192.png" />
+    <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
+    <!-- iOS ignores manifest.webmanifest for home-screen installs, so its
+         standalone-display and status-bar behavior needs these separately. -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="かん字マスター" />
     <link rel="stylesheet" href="./style.css" />
   </head>
   <body>
